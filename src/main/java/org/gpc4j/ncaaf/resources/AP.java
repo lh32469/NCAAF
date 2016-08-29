@@ -19,6 +19,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang.StringUtils;
 import org.gpc4j.ncaaf.XGame;
+import org.gpc4j.ncaaf.hystrix.GetGameCommand;
 import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
 import org.gpc4j.ncaaf.hystrix.GetWeekCommand;
 import org.gpc4j.ncaaf.jaxb.Game;
@@ -43,6 +44,8 @@ public class AP {
 
     private Jedis jedis;
 
+    private List<Future<Game>> games;
+
     @Inject
     private JedisPool pool;
 
@@ -52,6 +55,12 @@ public class AP {
         jedis = pool.getResource();
         jedis.select(10);
         LOG.debug("Jedis: " + jedis);
+
+        // Load Games in the background.
+        games = new LinkedList<>();
+        for (String key : jedis.keys("game.2016.*")) {
+            games.add(new GetGameCommand(key, pool).queue());
+        }
     }
 
 
@@ -114,14 +123,14 @@ public class AP {
         // Get next weeks opponent
         Week thisWeek = weeks.getLast();
 
-        // Load Games
-        List<Game> games = new LinkedList<>();
-        for (String key : jedis.keys("game.2016.*")) {
-            games.add(new XGame(jedis.hgetAll(key)));
+        // Fetch the loaded Games
+        List<Game> _games = new LinkedList<>();
+        for (Future<Game> game : games) {
+            _games.add(game.get());
         }
 
         for (Team team : thisWeek.getTeams()) {
-            Optional<Team> next = getNext(games, team.getName());
+            Optional<Team> next = getNext(_games, team.getName());
             if (next.isPresent()) {
                 LOG.info("Next:  "
                         + team.getName() + " -> "
