@@ -67,7 +67,6 @@ public class GetWeekCommand extends HystrixCommand<Week> {
         int y = 25;
 
         try {
-            jedis.select(10);
             if (jedis.exists(key)) {
 
                 for (String teamName : jedis.lrange(key, 0, 100)) {

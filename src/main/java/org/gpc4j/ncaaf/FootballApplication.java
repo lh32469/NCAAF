@@ -78,7 +78,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
             cfg.setMinIdle(10);
             cfg.setTestWhileIdle(true);
             JedisPool pool = new JedisPool(cfg, config.getRedisHost(),
-                    config.getRedisPort(), 0, config.getRedisPass());
+                    config.getRedisPort(), 0, config.getRedisPass(), 10);
 //            JedisPool pool = new JedisPool(cfg, config.getRedisHost(),
 //                    config.getRedisPort());
 

@@ -60,7 +60,6 @@ public class GetGameCommand extends HystrixCommand<Game> {
         Jedis jedis = pool.getResource();
         
         try {
-            jedis.select(10);
             return new XGame(jedis.hgetAll(key));
         } finally {
             pool.returnResource(jedis);

@@ -49,7 +49,6 @@ public class UpdateSchedule {
     @PostConstruct
     public void postConstruct() {
         jedis = pool.getResource();
-        jedis.select(10);
         LOG.debug("Jedis: " + jedis);
     }
 

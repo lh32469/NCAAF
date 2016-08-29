@@ -65,7 +65,6 @@ public class GetTeamCommand extends HystrixCommand<Team> {
 
         LOG.info(name);
 
-        jedis.select(10);
         Map<String, String> data = jedis.hgetAll(name);
 
         if (data.isEmpty()) {
