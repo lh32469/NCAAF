@@ -84,7 +84,7 @@ public class UpdateSchedule {
         while (scan.hasNext()) {
             Game game = new XGame(scan.next());
             if (!Strings.isNullOrEmpty(game.getHome())) {
-                sched.getGames().add(new XGame(scan.next()));
+                sched.getGames().add(game);
             }
         }
 
