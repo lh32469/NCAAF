@@ -14,14 +14,17 @@ server:
 logging:
   level: INFO
   loggers:
-    org.gpc4j.ncaaf.FootballConfiguration: DEBUG
-    org.gpc4j.ncaaf.resources: DEBUG
+    org.gpc4j.ncaaf.FootballConfiguration: INFO
+    org.gpc4j.ncaaf.resources: INFO
 
   appenders:
-    - type: console
-      threshold: TRACE
+    - type: file
+      currentLogFilename: /var/log/ncaaf.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /var/log/ncaaf-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
       logFormat: "%d{dd MMM HH:mm:ss} %-5level %C{1} %M %msg%n"
 
-#      logFormat: "%-5level [%date{ISO8601}] [%X{MDC_VAR}] [%thread]: %c:%method:%line- %msg%n"
-#      logFormat: '[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%class{0}:%method:%line] [%thread] [-[%msg]-] %n'
-#      logFormat: "%d{dd MMM HH:mm:ss} %-5level %class{0} %method %msg%n"
+
