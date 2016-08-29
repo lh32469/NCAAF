@@ -82,23 +82,24 @@ public class UpdateSchedule {
         Scanner scan = new Scanner(text).useDelimiter("ncf_s_left");
 
         while (scan.hasNext()) {
-            sched.getGames().add(new XGame(scan.next()));
+            Game game = new XGame(scan.next());
+            if (!Strings.isNullOrEmpty(game.getHome())) {
+                sched.getGames().add(new XGame(scan.next()));
+            }
         }
 
         for (Game game : sched.getGames()) {
             //System.out.println(game.toString());
-            if (!Strings.isNullOrEmpty(game.getHome())) {
-                final String id = "game.2016." + game.getId();
-                safeSet(id, "home", game.getHome());
-                safeSet(id, "homeRank", game.getHomeRank());
-                safeSet(id, "homeScore", game.getHomeScore());
-                safeSet(id, "visitor", game.getVisitor());
-                safeSet(id, "visitorRank", game.getVisitorRank());
-                safeSet(id, "visitorScore", game.getVisitorScore());
-                safeSet(id, "date", game.getDate());
-                //jedis.expire(id, 3600);
-                //jedis.persist(id);
-            }
+            final String id = "game.2016." + game.getId();
+            safeSet(id, "home", game.getHome());
+            safeSet(id, "homeRank", game.getHomeRank());
+            safeSet(id, "homeScore", game.getHomeScore());
+            safeSet(id, "visitor", game.getVisitor());
+            safeSet(id, "visitorRank", game.getVisitorRank());
+            safeSet(id, "visitorScore", game.getVisitorScore());
+            safeSet(id, "date", game.getDate());
+            //jedis.expire(id, 3600);
+            //jedis.persist(id);
         }
 
         return sched;
