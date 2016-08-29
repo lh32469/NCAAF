@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           xmlns:hn="http://jaxb.ncaaf.gpc4j.org"
+           jaxb:version="2.1"
+           jaxb:extensionBindingPrefixes="xjc"
+           xmlns="http://jaxb.ncaaf.gpc4j.org"
+           targetNamespace="http://jaxb.ncaaf.gpc4j.org"
+           elementFormDefault="qualified">
+  
+    <xs:element name="game" type="game" />
+   
+    <xs:complexType name="game">
+        <xs:sequence>
+            <xs:element name="visitor"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="visitorRank"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="visitorScore"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="home"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="homeRank"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="homeScore"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="date"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="id"
+                        maxOccurs="1"
+                        type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

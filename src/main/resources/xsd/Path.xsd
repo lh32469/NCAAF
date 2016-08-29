@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           xmlns:hn="http://jaxb.ncaaf.gpc4j.org"
+           jaxb:version="2.1"
+           jaxb:extensionBindingPrefixes="xjc"
+           xmlns="http://jaxb.ncaaf.gpc4j.org"
+           targetNamespace="http://jaxb.ncaaf.gpc4j.org"
+           elementFormDefault="qualified">
+  
+    <xs:element name="path" type="path" />
+   
+    <xs:complexType name="path">
+        <xs:sequence>
+            <xs:element name="d"
+                        maxOccurs="1"
+                        type="xs:string"/> 
+            <xs:element name="stroke"
+                        maxOccurs="1"
+                        type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
