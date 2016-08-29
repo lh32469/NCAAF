@@ -18,11 +18,14 @@ logging:
     org.gpc4j.ncaaf.resources: INFO
 
   appenders:
+    - type: console
+      threshold: WARN
+      logFormat: "%d{dd MMM HH:mm:ss} %-5level %C{1} %M %msg%n"
     - type: file
-      currentLogFilename: /var/log/ncaaf.log
+      currentLogFilename: /var/tmp/ncaaf.log
       threshold: ALL
       archive: true
-      archivedLogFilenamePattern: /var/log/ncaaf-%d.log
+      archivedLogFilenamePattern: /var/tmp/ncaaf-%d.log
       archivedFileCount: 5
       timeZone: UTC
       logFormat: "%d{dd MMM HH:mm:ss} %-5level %C{1} %M %msg%n"
