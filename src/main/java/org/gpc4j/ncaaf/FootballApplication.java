@@ -43,7 +43,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
 
 
     @Override
-    public void run(FootballConfiguration cfg, Environment env) 
+    public void run(FootballConfiguration cfg, Environment env)
             throws Exception {
 
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -54,7 +54,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
         JerseyEnvironment jersey = env.jersey();
         jersey.register(AP.class);
         jersey.register(UpdateSchedule.class);
-       
+
         Binder binder = new Binder(cfg);
         jersey.register(binder);
     }
@@ -84,6 +84,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
 
             bind(pool);
 
+            bind(new GamesProvider(pool));
         }
 
 

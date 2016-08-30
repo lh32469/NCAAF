@@ -1,12 +1,9 @@
 package org.gpc4j.ncaaf.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Strings;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -17,8 +14,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import org.apache.commons.lang.StringUtils;
-import org.gpc4j.ncaaf.XGame;
+import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.hystrix.GetGameCommand;
 import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
 import org.gpc4j.ncaaf.hystrix.GetWeekCommand;
@@ -44,23 +40,17 @@ public class AP {
 
     private Jedis jedis;
 
-    private List<Future<Game>> games;
-
     @Inject
     private JedisPool pool;
+
+    @Inject
+    private GamesProvider gp;
 
 
     @PostConstruct
     public void init() {
         jedis = pool.getResource();
-        jedis.select(10);
         LOG.debug("Jedis: " + jedis);
-
-        // Load Games in the background.
-        games = new LinkedList<>();
-        for (String key : jedis.keys("game.2016.*")) {
-            games.add(new GetGameCommand(key, pool).queue());
-        }
     }
 
 
@@ -90,7 +80,7 @@ public class AP {
     @Timed
     Stream<Week> getWeeks(int year) throws InterruptedException,
             ExecutionException {
-        LOG.info(year + "");
+        LOG.debug(year + "");
         final LinkedList<Week> weeks = new LinkedList<>();
         final List<Future<Week>> futures = new LinkedList<>();
 
@@ -123,16 +113,12 @@ public class AP {
         // Get next weeks opponent
         Week thisWeek = weeks.getLast();
 
-        // Fetch the loaded Games
-        List<Game> _games = new LinkedList<>();
-        for (Future<Game> game : games) {
-            _games.add(game.get());
-        }
+        List<Game> games = gp.getGames().collect(Collectors.toList());
 
         for (Team team : thisWeek.getTeams()) {
-            Optional<Team> next = getNext(_games, team.getName());
+            Optional<Team> next = getNext(games, team.getName());
             if (next.isPresent()) {
-                LOG.info("Next:  "
+                LOG.debug("Next:  "
                         + team.getName() + " -> "
                         + next.get().getName());
                 team.setNext(next.get());
@@ -153,12 +139,11 @@ public class AP {
             String home = game.getHome();
             String visitor = game.getVisitor();
 
-            // LOG.info(visitor + "@" + home);
             if (teamName.equals(home)) {
-                LOG.info(visitor + "@" + teamName);
+                LOG.trace(visitor + "@" + teamName);
                 next = Optional.of(new GetTeamCommand(visitor, jedis).execute());
             } else if (teamName.equals(visitor)) {
-                LOG.info(teamName + "@" + home);
+                LOG.trace(teamName + "@" + home);
                 next = Optional.of(new GetTeamCommand(home, jedis).execute());
             }
         }

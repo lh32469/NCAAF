@@ -63,7 +63,7 @@ public class GetTeamCommand extends HystrixCommand<Team> {
     @Override
     protected Team run() throws Exception {
 
-        LOG.info(name);
+        LOG.debug(name);
 
         Map<String, String> data = jedis.hgetAll(name);
 
