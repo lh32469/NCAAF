@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.gpc4j.ncaaf.hystrix.GetGameCommand;
 import org.gpc4j.ncaaf.jaxb.Game;
-import org.gpc4j.ncaaf.resources.AP;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -32,6 +31,10 @@ public class GamesProvider {
 
 
     public final void load() {
+
+        // Reset previous entries.
+        games.clear();
+
         Jedis jedis = pool.getResource();
         try {
             for (String key : jedis.keys("game.2016.*")) {
