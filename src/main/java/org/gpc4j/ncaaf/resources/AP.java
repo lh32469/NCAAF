@@ -15,7 +15,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import org.gpc4j.ncaaf.GamesProvider;
-import org.gpc4j.ncaaf.hystrix.GetGameCommand;
+import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
 import org.gpc4j.ncaaf.hystrix.GetWeekCommand;
 import org.gpc4j.ncaaf.jaxb.Game;
@@ -45,6 +45,9 @@ public class AP {
 
     @Inject
     private GamesProvider gp;
+
+    @Inject
+    private TeamProvider tp;
 
 
     @PostConstruct
@@ -89,7 +92,7 @@ public class AP {
         // Submit all requests
         for (int i = 0; i < numWeeks; i++) {
             String key = "AP." + year + "." + i;
-            futures.add(new GetWeekCommand(key, pool).queue());
+            futures.add(new GetWeekCommand(key, pool,tp).queue());
         }
 
         int xPosition = 0;
@@ -141,10 +144,10 @@ public class AP {
 
             if (teamName.equals(home)) {
                 LOG.trace(visitor + "@" + teamName);
-                next = Optional.of(new GetTeamCommand(visitor, jedis).execute());
+                next = Optional.of(tp.getTeam(visitor));
             } else if (teamName.equals(visitor)) {
                 LOG.trace(teamName + "@" + home);
-                next = Optional.of(new GetTeamCommand(home, jedis).execute());
+                next = Optional.of(tp.getTeam(home));
             }
         }
 

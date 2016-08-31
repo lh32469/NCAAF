@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.gpc4j.ncaaf.GamesProvider;
+import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.XGame;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Schedule;
@@ -49,6 +50,9 @@ public class UpdateSchedule {
     @Inject
     private GamesProvider gp;
 
+    @Inject
+    private TeamProvider tp;
+
 
     @PostConstruct
     public void postConstruct() {
@@ -63,6 +67,7 @@ public class UpdateSchedule {
         pool.returnResource(jedis);
         // Tell GamesProvider to reload games.
         gp.load();
+        tp.reset();
     }
 
 

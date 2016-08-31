@@ -85,6 +85,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
             bind(pool);
 
             bind(new GamesProvider(pool));
+            bind(new TeamProvider(pool));
         }
 
 

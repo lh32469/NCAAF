@@ -8,6 +8,7 @@ logging:
   loggers:
     org.gpc4j.ncaaf.FootballConfiguration: DEBUG
     org.gpc4j.ncaaf.resources: DEBUG
+    org.gpc4j.ncaaf.hystrix: DEBUG
 
   appenders:
     - type: console
