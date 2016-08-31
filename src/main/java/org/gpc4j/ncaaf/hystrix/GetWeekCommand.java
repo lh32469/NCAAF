@@ -57,7 +57,7 @@ public class GetWeekCommand extends HystrixCommand<Week> {
         this.key = key;
         this.pool = pool;
         this.tp = tp;
-        LOG.info(key);
+        LOG.debug(key);
     }
 
 
