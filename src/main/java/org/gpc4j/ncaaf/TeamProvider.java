@@ -36,10 +36,10 @@ public class TeamProvider {
 
     public synchronized Team getTeam(String teamName) {
         if (teams.keySet().contains(teamName)) {
-            LOG.info("Hit: " + teamName);
+            LOG.debug("Hit: " + teamName);
             return teams.get(teamName);
         } else {
-            LOG.info("Miss: " + teamName);
+            LOG.debug("Miss: " + teamName);
             Jedis jedis = pool.getResource();
             try {
                 Team team = new GetTeamCommand(teamName, jedis).execute();

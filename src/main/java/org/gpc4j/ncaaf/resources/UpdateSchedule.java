@@ -17,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.XGame;
-import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Schedule;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -92,34 +91,14 @@ public class UpdateSchedule {
         Scanner scan = new Scanner(text).useDelimiter("ncf_s_left");
 
         while (scan.hasNext()) {
-            Game game = new XGame(scan.next());
+            XGame game = new XGame(scan.next());
             if (!Strings.isNullOrEmpty(game.getHome())) {
                 sched.getGames().add(game);
+                game.saveGame(jedis);
             }
         }
 
-        for (Game game : sched.getGames()) {
-            //System.out.println(game.toString());
-            final String id = "game.2016." + game.getId();
-            safeSet(id, "home", game.getHome());
-            safeSet(id, "homeRank", game.getHomeRank());
-            safeSet(id, "homeScore", game.getHomeScore());
-            safeSet(id, "visitor", game.getVisitor());
-            safeSet(id, "visitorRank", game.getVisitorRank());
-            safeSet(id, "visitorScore", game.getVisitorScore());
-            safeSet(id, "date", game.getDate());
-            //jedis.expire(id, 3600);
-            //jedis.persist(id);
-        }
-
         return sched;
-    }
-
-
-    void safeSet(String key, String hkey, String val) {
-        if (!Strings.isNullOrEmpty(val)) {
-            jedis.hset(key, hkey, val);
-        }
     }
 
 

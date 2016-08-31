@@ -1,5 +1,6 @@
 package org.gpc4j.ncaaf;
 
+import com.google.common.base.Strings;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -9,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 
 /**
@@ -71,9 +73,31 @@ public class XGame extends Game {
      */
     public XGame(Map<String, String> data) {
         setHome(data.get("home"));
-        setVisitor(data.get("visitor"));
         setHomeRank(data.get("homeRank"));
         setHomeScore(data.get("homeScore"));
+        setVisitor(data.get("visitor"));
+        setVisitorRank(data.get("visitorRank"));
+        setVisitorScore(data.get("visitorScore"));
+        setDate(data.get("date"));
+    }
+
+
+    public void saveGame(Jedis jedis) {
+        final String key = "game.2016." + getId();
+        safeSet(jedis, key, "home", getHome());
+        safeSet(jedis, key, "homeRank", getHomeRank());
+        safeSet(jedis, key, "homeScore", getHomeScore());
+        safeSet(jedis, key, "visitor", getVisitor());
+        safeSet(jedis, key, "visitorRank", getVisitorRank());
+        safeSet(jedis, key, "visitorScore", getVisitorScore());
+        safeSet(jedis, key, "date", getDate());
+    }
+
+
+    void safeSet(Jedis jedis, String key, String field, String val) {
+        if (!Strings.isNullOrEmpty(val)) {
+            jedis.hset(key, field, val);
+        }
     }
 
 
