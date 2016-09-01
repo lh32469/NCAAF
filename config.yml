@@ -7,8 +7,10 @@ logging:
   level: INFO
   loggers:
     org.gpc4j.ncaaf.FootballConfiguration: DEBUG
-    org.gpc4j.ncaaf.resources: DEBUG
-    org.gpc4j.ncaaf.hystrix: DEBUG
+    org.gpc4j.ncaaf.resources: INFO
+    org.gpc4j.ncaaf.resources.AP: DEBUG
+    org.gpc4j.ncaaf.hystrix: INFO
+    org.gpc4j.ncaaf.views: DEBUG
 
   appenders:
     - type: console

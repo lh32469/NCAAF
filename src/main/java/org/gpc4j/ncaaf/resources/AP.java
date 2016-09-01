@@ -75,12 +75,12 @@ public class AP {
         AP_View view = new AP_View();
         view.setTitle(year + " AP Rankings");
         view.setWeeks(getWeeks(year).collect(Collectors.toList()));
-
+        view.setTp(tp);
+        view.setGp(gp);
         return view;
     }
 
 
-    @Timed
     Stream<Week> getWeeks(int year) throws InterruptedException,
             ExecutionException {
         LOG.debug(year + "");
@@ -92,7 +92,7 @@ public class AP {
         // Submit all requests
         for (int i = 0; i < numWeeks; i++) {
             String key = "AP." + year + "." + i;
-            futures.add(new GetWeekCommand(key, pool,tp).queue());
+            futures.add(new GetWeekCommand(key, pool, tp).queue());
         }
 
         int xPosition = 0;
@@ -119,6 +119,7 @@ public class AP {
         List<Game> games = gp.getGames().collect(Collectors.toList());
 
         for (Team team : thisWeek.getTeams()) {
+
             Optional<Team> next = getNext(games, team.getName());
             if (next.isPresent()) {
                 LOG.debug("Next:  "
@@ -126,13 +127,27 @@ public class AP {
                         + next.get().getName());
                 team.setNext(next.get());
             }
+
+            Optional<Game> nextGame = getNextGame(games, team.getName());
+            if (nextGame.isPresent()) {
+                LOG.debug("Next:  "
+                        + team.getName() + " -> "
+                        + nextGame.get());
+                team.setNextGame(nextGame.get());
+            }
+
         }
 
         return weeks.parallelStream();
     }
 
 
-    @Timed
+    /**
+     * Use getNextGame instead.
+     *
+     * @deprecated
+     */
+    @Deprecated
     Optional<Team> getNext(List<Game> games, String teamName) {
 
         Optional<Team> next = Optional.empty();
@@ -148,6 +163,25 @@ public class AP {
             } else if (teamName.equals(visitor)) {
                 LOG.trace(teamName + "@" + home);
                 next = Optional.of(tp.getTeam(home));
+            }
+        }
+
+        return next;
+    }
+
+
+    Optional<Game> getNextGame(List<Game> games, String teamName) {
+
+        Optional<Game> next = Optional.empty();
+
+        for (Game game : games) {
+            if (game.getHomeScore() == null) {
+                // Game not played yet
+                if (teamName.equals(game.getHome())
+                        || teamName.equals(game.getVisitor())) {
+                    next = Optional.of(game);
+                    break;
+                }
             }
         }
 

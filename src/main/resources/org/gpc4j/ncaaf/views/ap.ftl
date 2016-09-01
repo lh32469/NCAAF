@@ -15,12 +15,13 @@
                 
                 <#assign place = 1>
                 <#list week.teams as team>
+                    <#assign record = getRecord(team) />
                     <image x="${team.CX?c}" 
                            y="${team.CY?c}"
                            width="70"
                            height="70"
                            xlink:href="${team.image}" >
-                        <title role="tooltip">${team.name} (${place})</title>
+                        <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
                     <#assign place = place + 1>
                 </#list>
@@ -32,12 +33,14 @@
                     </text>
                     <#list week.teams as team>
                         <#if (team.next)??>
+                            <#assign record = getRecord(team.next) />
                             <image x="${(team.CX + 200)?c}" 
                                   y="${team.CY?c}"
                                   width="70"
                                   height="70"
                                   xlink:href="${team.next.image}" >
-                                <title role="tooltip">${team.next.name}</title>
+                                <title role="tooltip">${team.next.name} ${record} ${team.nextGame.date}
+                                    </title>
                             </image>
                         </#if>
                     </#list>
