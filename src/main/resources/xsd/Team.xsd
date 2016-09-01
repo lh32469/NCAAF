@@ -11,6 +11,8 @@
            targetNamespace="http://jaxb.ncaaf.gpc4j.org"
            elementFormDefault="qualified">
   
+    <xs:include schemaLocation="Game.xsd"/>
+
     <xs:element name="team" type="team" />
    
     <xs:complexType name="team">
@@ -30,6 +32,9 @@
             <xs:element name="next"
                         maxOccurs="1"
                         type="team"/>
+            <xs:element name="nextGame"
+                        maxOccurs="1"
+                        type="game"/>
         </xs:sequence>
     </xs:complexType>
 
