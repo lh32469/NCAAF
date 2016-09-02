@@ -33,13 +33,18 @@
                     </text>
                     <#list week.teams as team>
                         <#if (team.next)??>
-                            <#assign record = getRecord(team.next) />
+                            <#assign record = getRecord(team.next) />                            
+                            <#if (team.nextGame)??>
+                                <#assign nextDate = team.nextGame.date />
+                            <#else>
+                                <#assign nextDate = "" />
+                            </#if>
                             <image x="${(team.CX + 200)?c}" 
                                   y="${team.CY?c}"
                                   width="70"
                                   height="70"
                                   xlink:href="${team.next.image}" >
-                                <title role="tooltip">${team.next.name} ${record} ${team.nextGame.date}
+                                <title role="tooltip">${team.next.name} ${record} ${nextDate}
                                     </title>
                             </image>
                         </#if>

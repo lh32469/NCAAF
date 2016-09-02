@@ -130,10 +130,12 @@ public class AP {
 
             Optional<Game> nextGame = getNextGame(games, team.getName());
             if (nextGame.isPresent()) {
-                LOG.debug("Next:  "
+                LOG.debug("NextGame:  "
                         + team.getName() + " -> "
                         + nextGame.get());
                 team.setNextGame(nextGame.get());
+            } else {
+                LOG.debug("NextGame:  " + team.getName() + " -> None");
             }
 
         }
