@@ -31,11 +31,11 @@ public class XGame extends Game {
 
         Scanner s1 = new Scanner(entry).useDelimiter("&ncf");
         String teamsAndDate = s1.next();
-        LOG.info("   " + teamsAndDate);
+        LOG.debug("   " + teamsAndDate);
 
         if (teamsAndDate.contains("FINAL")) {
-
-            Scanner s2 = new Scanner(teamsAndDate).useDelimiter("\\^");
+            teamsAndDate = teamsAndDate.replaceAll("\\^", "");
+            Scanner s2 = new Scanner(teamsAndDate).useDelimiter("   ");
             String visitorRaw = s2.next();
             setVisitor(parseVistor(visitorRaw));
             setVisitorRank(getVisitorRank(visitorRaw));

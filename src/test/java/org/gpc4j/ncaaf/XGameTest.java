@@ -90,4 +90,19 @@ public class XGameTest {
     }
 
 
+    @Test
+    public void visitorWinnerNonRanked() {
+        String entry = "9=^Indiana 34   Florida Intl 13 (FINAL)&ncf_s_right9_count=0&ncf_s_url9=http://espn.go.com/ncf/boxscore?gameId=400869342&";
+        XGame game = new XGame(entry);
+        assertEquals("GameId: ", "400869342", game.getId());
+        assertEquals("VisitorRank: ", "", game.getVisitorRank());
+        assertEquals("Visitor: ", "Indiana", game.getVisitor());
+        assertEquals("VisitorScore: ", "34", game.getVisitorScore());
+        assertEquals("HomeRank: ", "", game.getHomeRank());
+        assertEquals("Home: ", "Florida Intl", game.getHome());
+        assertEquals("HomeScore: ", "13", game.getHomeScore());
+        assertNull(game.getDate());
+    }
+
+
 }
