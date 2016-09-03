@@ -11,25 +11,22 @@ table = html.'**'.findAll {
   it.'@id' == 'ysprankings-results-table'
 }
 
-//println table
-//println "table size: " + table.size()
-//println "table getAt: " + table.getAt(0)
-
-//println "GetAt size: " + table.getAt(0).size()
-//println "GetAt text: " + table.getAt(0).getAt(0)
-//println "GetAt children: " + table.getAt(0).getAt(0).children()
-
 def substitute = [:]
 substitute["St\\."] = "State"
 substitute["N\\."]  = "North"
+substitute["S\\."]  = "South"
+substitute["E\\."]  = "East"
+substitute["W\\."]  = "West"
 
 table.getAt(0).getAt(0).children().each {
-  print it.children()[0].text()
-  team = it.children()[1].text()
-  substitute.each{ k, v -> 
+  rank = it.children()[0].text()
+    if(!"Rank".equals(rank)) {
+    team = it.children()[1].text()
+    substitute.each{ k, v -> 
     team = team.replaceAll(k,v)
+    }
+    // Remove ranking
+    team = team.replaceAll(/\(\d+\)/,"")
+    println rank + "\t" + team
   }
-  // Remove ranking
-  team = team.replaceAll(/\(\d+\)/,"")
-  println "  " + team
 }
