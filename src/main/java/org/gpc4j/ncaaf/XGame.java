@@ -19,7 +19,10 @@ import redis.clients.jedis.Jedis;
  */
 public class XGame extends Game {
 
-    static final DateTimeFormatter dtf
+    static final private Pattern FINAL_SCORES
+            = Pattern.compile("(\\D+) (\\d+)");
+
+    static final private DateTimeFormatter dtf
             = DateTimeFormatter.ofPattern("EEE, MMM d h:mm a 'ET' yyyy");
 
     final static private org.slf4j.Logger LOG
@@ -156,14 +159,12 @@ public class XGame extends Game {
         }
 
         LOG.trace("Searching: " + p2);
-        Pattern p = Pattern.compile("([\\w\\s]+) (\\d+)");
 
-        Matcher m = p.matcher(p2);
+        Matcher m = FINAL_SCORES.matcher(p2);
         if (m.find()) {
             String found = m.group(1);
-            LOG.trace("debug: " + found);
             p2 = found;
-            LOG.debug("Score: " + m.group(2));
+            LOG.debug("Found: " + found + ", score: ", m.group(2));
             setVisitorScore(m.group(2));
         }
 
@@ -192,16 +193,15 @@ public class XGame extends Game {
             p2 = p2.split("\\) ")[1];
         }
 
-        // Get everything before parens
+        // Get everything before parens of (date or (FINAL
         p2 = p2.split("\\(")[0].trim();
         LOG.trace("Searching: " + p2);
-        Pattern p = Pattern.compile("([\\w\\s]+) (\\d+)");
 
-        Matcher m = p.matcher(p2);
+        Matcher m = FINAL_SCORES.matcher(p2);
         if (m.find()) {
             String found = m.group(1);
-            LOG.debug("Found: " + found);
             p2 = found;
+            LOG.debug("Found: " + found + ", score: ", m.group(2));
             setHomeScore(m.group(2));
         }
 

@@ -105,4 +105,19 @@ public class XGameTest {
     }
 
 
+    @Test
+    public void miamiOfOhioFinal() {
+        String entry = "46=Miami (OH) 21   ^(15) Iowa 45 (FINAL)&ncf_s_right46_count=0&ncf_s_url46=http://espn.go.com/ncf/boxscore?gameId=400869262&";
+        XGame game = new XGame(entry);
+        assertEquals("GameId: ", "400869262", game.getId());
+        assertEquals("VisitorRank: ", "", game.getVisitorRank());
+        assertEquals("Visitor: ", "Miami (OH)", game.getVisitor());
+        assertEquals("VisitorScore: ", "21", game.getVisitorScore());
+        assertEquals("HomeRank: ", "15", game.getHomeRank());
+        assertEquals("Home: ", "Iowa", game.getHome());
+        assertEquals("HomeScore: ", "45", game.getHomeScore());
+        assertNull(game.getDate());
+    }
+
+
 }
