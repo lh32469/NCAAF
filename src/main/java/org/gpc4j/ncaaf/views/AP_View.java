@@ -73,26 +73,31 @@ public class AP_View extends View {
         gp.getGames().forEach((game) -> {
             if (game.getHomeScore() != null) {
 
-                if (game.getHome().equals(name)) {
-                    int home = Integer.parseInt(game.getHomeScore());
-                    int visitor = Integer.parseInt(game.getVisitorScore());
-                    if (home > visitor) {
-                        LOG.debug("Win@Home: " + name);
-                        wins.incrementAndGet();
-                    } else {
-                        LOG.debug("Loss@Home: " + name);
-                        losses.incrementAndGet();
+                try {
+                    if (game.getHome().equals(name)) {
+                        int home = Integer.parseInt(game.getHomeScore());
+                        int visitor = Integer.parseInt(game.getVisitorScore());
+
+                        if (home > visitor) {
+                            LOG.debug("Win@Home: " + name);
+                            wins.incrementAndGet();
+                        } else {
+                            LOG.debug("Loss@Home: " + name);
+                            losses.incrementAndGet();
+                        }
+                    } else if (game.getVisitor().equals(name)) {
+                        int home = Integer.parseInt(game.getHomeScore());
+                        int visitor = Integer.parseInt(game.getVisitorScore());
+                        if (visitor > home) {
+                            LOG.debug("Win@Away: " + name);
+                            wins.incrementAndGet();
+                        } else {
+                            LOG.debug("Loss@Away: " + name);
+                            losses.incrementAndGet();
+                        }
                     }
-                } else if (game.getVisitor().equals(name)) {
-                    int home = Integer.parseInt(game.getHomeScore());
-                    int visitor = Integer.parseInt(game.getVisitorScore());
-                    if (visitor > home) {
-                        LOG.debug("Win@Away: " + name);
-                        wins.incrementAndGet();
-                    } else {
-                        LOG.debug("Loss@Away: " + name);
-                        losses.incrementAndGet();
-                    }
+                } catch (NumberFormatException ex) {
+                    LOG.error(ex.getLocalizedMessage() + " " + game);
                 }
 
             }
