@@ -29,6 +29,9 @@
             <xs:element name="teams"
                         maxOccurs="25"
                         type="team"/>
+            <xs:element name="opponents"
+                        maxOccurs="25"
+                        type="team"/>
         </xs:sequence>
     </xs:complexType>
 
