@@ -44,6 +44,8 @@ public class GamesProvider {
         } finally {
             pool.returnResource(jedis);
         }
+
+        // TODO: Need to sort games by date
     }
 
 
