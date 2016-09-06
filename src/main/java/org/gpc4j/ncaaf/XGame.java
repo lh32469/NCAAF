@@ -3,6 +3,7 @@ package org.gpc4j.ncaaf;
 import com.google.common.base.Strings;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Scanner;
@@ -25,11 +26,17 @@ public class XGame extends Game {
     static final private DateTimeFormatter dtf
             = DateTimeFormatter.ofPattern("EEE, MMM d h:mm a 'ET' yyyy");
 
+    /**
+     * Initial entry string from ESPN.
+     */
+    private String entry;
+
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(XGame.class);
 
 
     public XGame(String entry) {
+        this.entry = entry;
         setId(getGameId(entry));
 
         Scanner s1 = new Scanner(entry).useDelimiter("&ncf");
@@ -193,11 +200,24 @@ public class XGame extends Game {
             p2 = p2.split("\\) ")[1];
         }
 
-        // Get everything before parens of (date or (FINAL
-        p2 = p2.split("\\(")[0].trim();
-        LOG.trace("Searching: " + p2);
+        // Miami (OH) (SAT, SEP 10 3:30 PM ET)
+        Pattern d
+                = Pattern.compile("(.*)\\((MON.*|TUE.*|WED.*|THU.*|FRI.*|SAT.*|SUN.*|FINAL.*)\\)");
+        Matcher m = d.matcher(p2);
 
-        Matcher m = FINAL_SCORES.matcher(p2);
+        if (m.find()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("** Found: " + m.groupCount());
+                for (int i = 1; i <= m.groupCount(); i++) {
+                    LOG.debug(" >>  " + m.group(i));
+                }
+            }
+            p2 = m.group(1).trim();
+        }
+
+        LOG.debug("Searching: " + p2);
+
+        m = FINAL_SCORES.matcher(p2);
         if (m.find()) {
             String found = m.group(1);
             p2 = found;
@@ -269,20 +289,36 @@ public class XGame extends Game {
      * Examples:
      *
      * Texas (SUN, SEP 4 7:30 PM ET) <br/>
-     * (1) Alabama (SAT, SEP 3 8:00 PM ET)
+     * (1) Alabama (SAT, SEP 3 8:00 PM ET)<br/>
+     * Miami (OH) (SAT, SEP 10 3:30 PM ET)
      *
      * @param text
      * @return
      */
-    static String getDate(String text) {
+    String getDate(String text) {
+
+        LOG.debug(text);
 
         if (text.startsWith("(")) {
             // Ranked team
             text = text.split("\\) ")[1];
         }
 
-        text
-                = text.split("\\(")[1].replaceAll("\\)", "");
+        Pattern d
+                = Pattern.compile(".*(MON.*|TUE.*|WED.*|THU.*|FRI.*|SAT.*|SUN.*)\\)");
+        Matcher m = d.matcher(text);
+
+        if (m.find()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("** Found: " + m.groupCount());
+                for (int i = 1; i <= m.groupCount(); i++) {
+                    LOG.debug(" >>  " + m.group(i));
+                }
+            }
+            text = m.group(1).trim();
+        }
+
+        LOG.debug(text);
 
         // Replace days of week
         text = text.replaceAll("MON", "Mon");
@@ -297,10 +333,21 @@ public class XGame extends Game {
         text = text.replaceAll("AUG", "Aug");
         text = text.replaceAll("SEP", "Sep");
         text = text.replaceAll("OCT", "Oct");
+        text = text.replaceAll("NOV", "Nov");
+        text = text.replaceAll("DEC", "Dec");
 
         text += " " + Calendar.getInstance().get(Calendar.YEAR);
 
-        return LocalDateTime.parse(text, dtf).toString();
+        String result = null;
+        try {
+            LOG.debug("Parsing: [" + text + "]");
+            result = LocalDateTime.parse(text, dtf).toString();
+        } catch (DateTimeParseException ex) {
+            LOG.error(ex.getLocalizedMessage());
+            LOG.error(entry);
+        }
+
+        return result;
     }
 
 

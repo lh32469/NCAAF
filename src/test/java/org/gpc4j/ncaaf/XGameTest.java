@@ -120,4 +120,20 @@ public class XGameTest {
     }
 
 
+    @Test
+    public void miamiOfOhioScheduledAtHome() {
+        String entry = "32=Eastern Illinois at Miami (OH) (SAT, SEP 10 3:30 PM ET)&ncf_s_right32_count=0&ncf_s_url32=http://espn.go.com/ncf/preview?gameId=400869271&";
+        XGame game = new XGame(entry);
+        assertEquals("GameId: ", "400869271", game.getId());
+        assertEquals("VisitorRank: ", "", game.getVisitorRank());
+        assertEquals("Visitor: ", "Eastern Illinois", game.getVisitor());
+        assertEquals("HomeRank: ", "", game.getHomeRank());
+        assertEquals("Home: ", "Miami (OH)", game.getHome());
+        assertEquals("2016-09-10T15:30", game.getDate());
+
+        assertNull(game.getHomeScore());
+        assertNull(game.getVisitorScore());
+    }
+
+
 }
