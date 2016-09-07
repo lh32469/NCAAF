@@ -37,7 +37,13 @@ public class TeamProvider {
     public synchronized Team getTeam(String teamName) {
         if (teams.keySet().contains(teamName)) {
             LOG.debug("Hit: " + teamName);
-            return teams.get(teamName);
+            Team team = teams.get(teamName);
+            Team clone = new Team();
+            clone.setName(teamName);
+            clone.setImage(team.getImage());
+            clone.setNext(team.getNext());
+            clone.setNextGame(team.getNextGame());
+            return clone;
         } else {
             LOG.debug("Miss: " + teamName);
             Jedis jedis = pool.getResource();
