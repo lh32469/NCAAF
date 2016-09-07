@@ -75,6 +75,7 @@ public class AP_View extends View {
 
 
     public String getRecord(Team team) {
+        LOG.debug("[" + team.getName() + "]");
 
         final String name = team.getName();
         final AtomicInteger wins = new AtomicInteger(0);
@@ -87,7 +88,7 @@ public class AP_View extends View {
                     if (game.getHome().equals(name)) {
                         int home = Integer.parseInt(game.getHomeScore());
                         int visitor = Integer.parseInt(game.getVisitorScore());
-
+                        LOG.trace("Home: " + name);
                         if (home > visitor) {
                             LOG.debug("Win@Home: " + name);
                             wins.incrementAndGet();
@@ -96,6 +97,7 @@ public class AP_View extends View {
                             losses.incrementAndGet();
                         }
                     } else if (game.getVisitor().equals(name)) {
+                        LOG.trace("Visitor: " + name);
                         int home = Integer.parseInt(game.getHomeScore());
                         int visitor = Integer.parseInt(game.getVisitorScore());
                         if (visitor > home) {
