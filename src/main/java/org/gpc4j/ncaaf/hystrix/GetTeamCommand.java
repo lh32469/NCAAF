@@ -55,7 +55,7 @@ public class GetTeamCommand extends HystrixCommand<Team> {
                 .withGroupKey(GetWeekCommand.GROUP_KEY)
                 .andThreadPoolPropertiesDefaults(THREAD_PROPERTIES)
                 .andCommandPropertiesDefaults(COMMAND_PROPS));
-        this.name = name;
+        this.name = name.trim();
         this.jedis = jedis;
     }
 
@@ -63,7 +63,7 @@ public class GetTeamCommand extends HystrixCommand<Team> {
     @Override
     protected Team run() throws Exception {
 
-        LOG.info(name);
+        LOG.debug(name);
 
         Map<String, String> data = jedis.hgetAll(name);
 
@@ -82,6 +82,7 @@ public class GetTeamCommand extends HystrixCommand<Team> {
 
     @Override
     protected Team getFallback() {
+        LOG.warn("Couldn't Find: [" + name + "]");
         Team team = new Team();
         team.setName(name);
         team.setImage(image);
