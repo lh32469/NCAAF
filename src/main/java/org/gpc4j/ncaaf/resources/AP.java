@@ -99,7 +99,7 @@ public class AP {
 
         // Collect the data
         for (int i = 0; i < numWeeks; i++) {
-            xPosition += 300;
+            xPosition += 250;
             Week w = futures.get(i).get();
             if (w.getTeams().isEmpty()) {
                 break;

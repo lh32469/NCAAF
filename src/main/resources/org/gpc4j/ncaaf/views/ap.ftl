@@ -25,10 +25,10 @@
                            xlink:href="${team.image}" >
                         <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
-                    <image x="${(team.CX+125)?c}" 
-                           y="${team.CY?c}"
-                           width="70"
-                           height="70"
+                    <image x="${(team.CX+100)?c}" 
+                           y="${(team.CY+20)?c}"
+                           width="40"
+                           height="40"
                            xlink:href="${opponent.image}" >
                         <title role="tooltip">${result}</title>
                     </image>
