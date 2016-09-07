@@ -51,14 +51,14 @@ public class AP {
 
 
     @PostConstruct
-    public void init() {
+    public void postConstruct() {
         jedis = pool.getResource();
         LOG.debug("Jedis: " + jedis);
     }
 
 
     @PreDestroy
-    public void destroy() {
+    public void preDestroy() {
         LOG.debug("Jedis: " + jedis);
         pool.returnResource(jedis);
     }
@@ -99,7 +99,7 @@ public class AP {
 
         // Collect the data
         for (int i = 0; i < numWeeks; i++) {
-            xPosition += 200;
+            xPosition += 300;
             Week w = futures.get(i).get();
             if (w.getTeams().isEmpty()) {
                 break;
