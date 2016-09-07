@@ -56,11 +56,13 @@ public class GetGameCommand extends HystrixCommand<Game> {
 
     @Override
     protected Game run() throws Exception {
-        
+
         Jedis jedis = pool.getResource();
-        
+
         try {
-            return new XGame(jedis.hgetAll(key));
+            XGame game = new XGame(jedis.hgetAll(key));
+            game.setId(key.replaceAll("game.2016.", ""));
+            return game;
         } finally {
             pool.returnResource(jedis);
         }
