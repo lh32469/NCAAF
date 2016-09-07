@@ -1,5 +1,6 @@
 package org.gpc4j.ncaaf;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -45,7 +46,7 @@ public class GamesProvider {
             pool.returnResource(jedis);
         }
 
-        // TODO: Need to sort games by date
+        Collections.sort(games, new GameComparator());
     }
 
 
