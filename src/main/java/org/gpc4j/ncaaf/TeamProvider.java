@@ -38,23 +38,28 @@ public class TeamProvider {
         if (teams.keySet().contains(teamName)) {
             LOG.debug("Hit: " + teamName);
             Team team = teams.get(teamName);
-            Team clone = new Team();
-            clone.setName(teamName);
-            clone.setImage(team.getImage());
-            clone.setNext(team.getNext());
-            clone.setNextGame(team.getNextGame());
-            return clone;
+            return clone(team);
         } else {
             LOG.debug("Miss: " + teamName);
             Jedis jedis = pool.getResource();
             try {
                 Team team = new GetTeamCommand(teamName, jedis).execute();
                 teams.put(teamName, team);
-                return team;
+                return clone(team);
             } finally {
                 pool.returnResource(jedis);
             }
         }
+    }
+
+
+    Team clone(Team team) {
+        Team clone = new Team();
+        clone.setName(team.getName());
+        clone.setImage(team.getImage());
+        clone.setNext(team.getNext());
+        clone.setNextGame(team.getNextGame());
+        return clone;
     }
 
 
