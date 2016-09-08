@@ -186,7 +186,7 @@ public class AP_View extends View {
 
 
     public Game getGame(int week, Team team) {
-        LOG.info(week + ": " + team.getName());
+        LOG.debug(week + ": " + team.getName());
 
         final String teamName = team.getName().trim();
         final List<Game> results
