@@ -62,7 +62,6 @@ public class AP_View extends View {
 
 
     public List<Path> getPaths() {
-        LOG.info("");
 
         final List<Path> paths = new ArrayList<>();
 
