@@ -35,7 +35,12 @@
                     <#assign place = place + 1>
                 </#list>
                     
-            </#list>    
+            </#list>
+                    
+            <#list paths as path>
+                <path d="${path.d}" stroke="${path.stroke}" fill="none" />
+            </#list>
+
         </svg>
     </body>
 

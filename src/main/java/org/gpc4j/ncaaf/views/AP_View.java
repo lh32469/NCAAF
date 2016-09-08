@@ -2,6 +2,7 @@ package org.gpc4j.ncaaf.views;
 
 import com.google.common.base.Strings;
 import io.dropwizard.views.View;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.jaxb.Game;
+import org.gpc4j.ncaaf.jaxb.Path;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.gpc4j.ncaaf.jaxb.Week;
 import org.slf4j.LoggerFactory;
@@ -56,6 +58,75 @@ public class AP_View extends View {
     public List<Week> getWeeks() {
         LOG.debug(weeks.size() + "");
         return weeks;
+    }
+
+
+    public List<Path> getPaths() {
+        LOG.info("");
+
+        final List<Path> paths = new ArrayList<>();
+
+        // Previous week pointer.
+        List<Team> previous = Collections.EMPTY_LIST;
+
+        for (Week week : weeks) {
+            List<Team> current = week.getTeams();
+
+            for (Team team : current) {
+                if (previous.contains(team)) {
+
+                    int previousPosition = previous.indexOf(team) + 1;
+                    int currentPosition = current.indexOf(team) + 1;
+                    int volatility = week.getVolatility();
+                    volatility
+                            += Math.abs(currentPosition - previousPosition);
+                    week.setVolatility(volatility);
+
+                    Team lastWeek = previous.get(previous.indexOf(team));
+
+                    int startX = lastWeek.getCX() + 70;
+                    int startY = lastWeek.getCY() + 70 / 2;
+                    int endX = team.getCX();
+                    int endY = team.getCY() + 70 / 2;
+
+                    String cpath = "M "
+                            + startX + " "
+                            + startY + " C "
+                            + (startX + 50) + " "
+                            + (startY) + " "
+                            + (endX - 50) + " "
+                            + (endY) + " "
+                            + endX + " "
+                            + endY;
+
+                    Path p = new Path();
+                    p.setD(cpath);
+
+                    // See if last week was a Bye Week
+                    Team lwOpp = getOpponent(week.getNumber() - 1, lastWeek);
+                    String lastWeeksOpponentName = lwOpp.getName();
+
+                    if (endY > startY) {
+                        p.setStroke("red");
+                    } else if (endY < startY) {
+                        p.setStroke("green");
+                    } else {
+                        p.setStroke("blue");
+                    }
+
+                    if (lastWeeksOpponentName != null
+                            && lastWeeksOpponentName.contains("Bye")) {
+                        p.setStroke("black");
+                    }
+
+                    paths.add(p);
+
+                }
+            }
+
+            previous = current;
+        }
+        return paths;
     }
 
 
@@ -117,46 +188,6 @@ public class AP_View extends View {
         });
 
         return wins + " - " + losses;
-    }
-
-
-    public Team getOpponent1(int week, Team team) {
-        LOG.debug(week + ": " + team.getName());
-
-        final String teamName = team.getName();
-        final List<Team> results = new LinkedList<>();
-
-        gp.getGames().forEachOrdered((game) -> {
-            if (game != null) {
-                final String home = game.getHome();
-                final String visitor = game.getVisitor();
-
-                if (home.equals(teamName)) {
-                    LOG.debug("Found Home: " + visitor + " @ " + home);
-                    //LOG.info(game.toString());
-                    results.add(tp.getTeam(visitor));
-                } else if (visitor.equals(teamName)) {
-                    LOG.debug("Found Vistor: " + visitor + " @ " + home);
-                    // LOG.info(game.toString());
-                    results.add(tp.getTeam(home));
-                }
-
-            }
-        });
-
-        LOG.debug("Results Found: " + results.size());
-
-        if (results.size() <= week) {
-            Team t = new Team();
-            t.setName("Unknown");
-            t.setImage(image);
-            return t;
-        }
-
-        LOG.info(week + ": " + team.getName()
-                + " vs " + results.get(week).getName());
-
-        return results.get(week);
     }
 
 
