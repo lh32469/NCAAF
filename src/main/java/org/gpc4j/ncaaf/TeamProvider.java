@@ -54,7 +54,7 @@ public class TeamProvider {
 
 
     Team clone(Team team) {
-        Team clone = new Team();
+        Team clone = new XTeam();
         clone.setName(team.getName());
         clone.setImage(team.getImage());
         clone.setNext(team.getNext());
