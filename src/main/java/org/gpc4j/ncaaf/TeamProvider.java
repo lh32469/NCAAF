@@ -3,6 +3,7 @@ package org.gpc4j.ncaaf;
 import java.util.HashMap;
 import java.util.Map;
 import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
+import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -57,8 +58,17 @@ public class TeamProvider {
         Team clone = new XTeam();
         clone.setName(team.getName());
         clone.setImage(team.getImage());
-        clone.setNext(team.getNext());
-        clone.setNextGame(team.getNextGame());
+
+        Team next = team.getNext();
+        if (next != null) {
+            clone.setNext(next);
+        }
+
+        Game nextGame = team.getNextGame();
+        if (nextGame != null) {
+            clone.setNextGame(nextGame);
+        }
+
         return clone;
     }
 
