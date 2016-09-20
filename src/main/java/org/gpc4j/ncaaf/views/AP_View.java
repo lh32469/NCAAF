@@ -2,6 +2,7 @@ package org.gpc4j.ncaaf.views;
 
 import com.google.common.base.Strings;
 import io.dropwizard.views.View;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -39,9 +40,19 @@ public class AP_View extends View {
 
     private GamesProvider gp;
 
+    List<LocalDateTime> saturdays = new LinkedList<>();
+
 
     public AP_View() {
         super("ap.ftl");
+        saturdays.add(LocalDateTime.parse("2016-09-03T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-09-10T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-09-17T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-09-24T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-10-01T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-10-08T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-10-22T20:00"));
+        saturdays.add(LocalDateTime.parse("2016-10-29T20:00"));
     }
 
 
@@ -216,7 +227,8 @@ public class AP_View extends View {
 
 
     public Game getGame(int week, Team team) {
-        LOG.debug(week + ": " + team.getName());
+        LocalDateTime gDay = saturdays.get(week);
+        LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
         final String teamName = team.getName().trim();
         final List<Game> results
@@ -240,11 +252,18 @@ public class AP_View extends View {
 
         LOG.debug("Results Found: " + results.size());
 
-        Game game;
+        Game game = null;
 
-        try {
-            game = results.get(week);
-        } catch (IndexOutOfBoundsException ex) {
+        for (Game g : results) {
+            LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+            if (gDay.plusDays(4).isAfter(gDate)
+                    && gDay.minusDays(4).isBefore(gDate)) {
+                LOG.debug("DGame: " + g);
+                game = g;
+            }
+        }
+
+        if (game == null) {
             LOG.warn("No Game Week " + week + " for " + team.getName());
             LOG.warn("Results Found: " + results);
             game = new Game();
