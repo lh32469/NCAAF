@@ -5,8 +5,10 @@ import io.dropwizard.views.View;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
@@ -40,19 +42,32 @@ public class AP_View extends View {
 
     private GamesProvider gp;
 
-    List<LocalDateTime> saturdays = new LinkedList<>();
+    private static final List<LocalDateTime> SATURDAYS = new LinkedList<>();
+
+    /**
+     * Other names used by ESPN for the same Team.
+     */
+    private static final Map<String, String> SUBS = new HashMap<>();
+
+
+    static {
+
+        LocalDateTime date = LocalDateTime.parse("2016-09-03T20:00");
+        SATURDAYS.add(date);
+
+        for (int i = 0; i < 20; i++) {
+            date = date.plusDays(7);
+            SATURDAYS.add(date);
+        }
+
+        // Should be moved to Redis at some point.
+        SUBS.put("Mississippi", "Ole Miss");
+
+    }
 
 
     public AP_View() {
         super("ap.ftl");
-        saturdays.add(LocalDateTime.parse("2016-09-03T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-09-10T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-09-17T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-09-24T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-10-01T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-10-08T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-10-22T20:00"));
-        saturdays.add(LocalDateTime.parse("2016-10-29T20:00"));
     }
 
 
@@ -227,8 +242,14 @@ public class AP_View extends View {
 
 
     public Game getGame(int week, Team team) {
-        LocalDateTime gDay = saturdays.get(week);
+        LocalDateTime gDay = SATURDAYS.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
+
+        for (String key : SUBS.keySet()) {
+            if (team.getName().trim().equals(key)) {
+                team.setName(SUBS.get(key));
+            }
+        }
 
         final String teamName = team.getName().trim();
         final List<Game> results
