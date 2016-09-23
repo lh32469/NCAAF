@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -104,6 +105,9 @@ public class XGame extends Game {
     }
 
 
+    /**
+     * Sets the field in the key only if the field is not null or empty.
+     */
     void safeSet(Jedis jedis, String key, String field, String val) {
         if (!Strings.isNullOrEmpty(val)) {
             jedis.hset(key, field, val);
