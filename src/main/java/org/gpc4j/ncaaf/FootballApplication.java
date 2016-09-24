@@ -14,7 +14,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.Logger;
-import org.gpc4j.ncaaf.resources.Games;
+import org.glassfish.jersey.message.MessageProperties;
+import org.gpc4j.ncaaf.resources.GamesResource;
 import org.gpc4j.ncaaf.resources.UpdateSchedule;
 
 
@@ -55,7 +56,8 @@ public class FootballApplication extends Application<FootballConfiguration> {
         JerseyEnvironment jersey = env.jersey();
         jersey.register(AP.class);
         jersey.register(UpdateSchedule.class);
-        jersey.register(Games.class);
+        jersey.register(GamesResource.class);
+        jersey.property(MessageProperties.XML_FORMAT_OUTPUT, true);
 
         Binder binder = new Binder(cfg);
         jersey.register(binder);
