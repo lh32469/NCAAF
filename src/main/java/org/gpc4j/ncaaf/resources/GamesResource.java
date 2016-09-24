@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.jaxb.Game;
+import org.gpc4j.ncaaf.jaxb.Games;
 import org.slf4j.LoggerFactory;
 
 
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author Lyle T Harris
  */
 @Path("games")
-public class Games {
+public class GamesResource {
 
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(AP.class);
@@ -32,13 +33,20 @@ public class Games {
     @GET
     @Timed
     @Path("{year}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Game> getGames(@PathParam("year") Integer year) {
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
+    public Games getGames(@PathParam("year") Integer year) {
         LOG.info(year.toString());
-        return gp.getGames()
+        
+        List<Game> games = gp.getGames()
                 .filter((game) -> !Strings.isNullOrEmpty(game.getDate())
                         && game.getDate().contains(year.toString()))
                 .collect(Collectors.toList());
+
+        Games g = new Games();
+        g.getGame().addAll(games);
+
+        return g;
     }
 
 

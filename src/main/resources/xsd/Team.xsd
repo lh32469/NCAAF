@@ -14,7 +14,17 @@
     <xs:include schemaLocation="Game.xsd"/>
 
     <xs:element name="team" type="team" />
-   
+    
+    <xs:element name="teams">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="team"
+                            maxOccurs="unbounded"
+                            type="team"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
     <xs:complexType name="team">
         <xs:sequence>
             <xs:element name="name"

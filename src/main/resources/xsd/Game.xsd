@@ -12,6 +12,16 @@
            elementFormDefault="qualified">
   
     <xs:element name="game" type="game" />
+    
+    <xs:element name="games">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="game"
+                            maxOccurs="unbounded"
+                            type="game"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
    
     <xs:complexType name="game">
         <xs:sequence>
