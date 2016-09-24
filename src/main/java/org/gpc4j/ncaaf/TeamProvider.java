@@ -39,6 +39,7 @@ public class TeamProvider {
         if (teams.keySet().contains(teamName)) {
             LOG.debug("Hit: " + teamName);
             Team team = teams.get(teamName);
+            // Don't return actual object.
             return clone(team);
         } else {
             LOG.debug("Miss: " + teamName);
@@ -46,6 +47,7 @@ public class TeamProvider {
             try {
                 Team team = new GetTeamCommand(teamName, jedis).execute();
                 teams.put(teamName, team);
+                // Don't return actual object.
                 return clone(team);
             } finally {
                 pool.returnResource(jedis);
@@ -55,19 +57,10 @@ public class TeamProvider {
 
 
     Team clone(Team team) {
+
         Team clone = new XTeam();
         clone.setName(team.getName());
         clone.setImage(team.getImage());
-
-        Team next = team.getNext();
-        if (next != null) {
-            clone.setNext(next);
-        }
-
-        Game nextGame = team.getNextGame();
-        if (nextGame != null) {
-            clone.setNextGame(nextGame);
-        }
 
         return clone;
     }
