@@ -37,10 +37,33 @@ public class GamesResource {
         MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getGames(@PathParam("year") Integer year) {
         LOG.info(year.toString());
-        
+
         List<Game> games = gp.getGames()
                 .filter((game) -> !Strings.isNullOrEmpty(game.getDate())
                         && game.getDate().contains(year.toString()))
+                .collect(Collectors.toList());
+
+        Games g = new Games();
+        g.getGame().addAll(games);
+
+        return g;
+    }
+
+
+    @GET
+    @Timed
+    @Path("{year}/{team}")
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
+    public Games getGamesForTeam(@PathParam("year") Integer year,
+            @PathParam("team") String team) {
+        LOG.info(year.toString() + "/" + team);
+
+        List<Game> games = gp.getGames()
+                .filter((game) -> !Strings.isNullOrEmpty(game.getDate())
+                        && game.getDate().contains(year.toString()))
+                .filter((game) -> game.getHome().equals(team)
+                        || game.getVisitor().equals(team))
                 .collect(Collectors.toList());
 
         Games g = new Games();
