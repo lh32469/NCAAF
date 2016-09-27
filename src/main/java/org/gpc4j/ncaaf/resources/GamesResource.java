@@ -32,10 +32,10 @@ public class GamesResource {
 
     @GET
     @Timed
-    @Path("{year}")
+    @Path("year/{year}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
-    public Games getGames(@PathParam("year") Integer year) {
+    public Games getAllGamesForYear(@PathParam("year") Integer year) {
         LOG.info(year.toString());
 
         List<Game> games = gp.getGames()
@@ -52,16 +52,36 @@ public class GamesResource {
 
     @GET
     @Timed
-    @Path("{year}/{team}")
+    @Path("team/{team}/{year}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
-    public Games getGamesForTeam(@PathParam("year") Integer year,
+    public Games getGamesForTeamByYear(@PathParam("year") Integer year,
             @PathParam("team") String team) {
         LOG.info(year.toString() + "/" + team);
 
         List<Game> games = gp.getGames()
                 .filter((game) -> !Strings.isNullOrEmpty(game.getDate())
                         && game.getDate().contains(year.toString()))
+                .filter((game) -> game.getHome().equals(team)
+                        || game.getVisitor().equals(team))
+                .collect(Collectors.toList());
+
+        Games g = new Games();
+        g.getGame().addAll(games);
+
+        return g;
+    }
+
+
+    @GET
+    @Timed
+    @Path("team/{team}")
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
+    public Games getAllGamesForTeam(@PathParam("team") String team) {
+        LOG.info(team);
+
+        List<Game> games = gp.getGames()
                 .filter((game) -> game.getHome().equals(team)
                         || game.getVisitor().equals(team))
                 .collect(Collectors.toList());
