@@ -14,7 +14,11 @@ import redis.clients.jedis.JedisPoolConfig;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.Logger;
+import java.util.HashMap;
+import java.util.Map;
 import org.glassfish.jersey.message.MessageProperties;
+import org.glassfish.jersey.server.ServerProperties;
+import org.glassfish.jersey.server.wadl.WadlFeature;
 import org.gpc4j.ncaaf.resources.GamesResource;
 import org.gpc4j.ncaaf.resources.UpdateSchedule;
 
@@ -58,6 +62,10 @@ public class FootballApplication extends Application<FootballConfiguration> {
         jersey.register(UpdateSchedule.class);
         jersey.register(GamesResource.class);
         jersey.property(MessageProperties.XML_FORMAT_OUTPUT, true);
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ServerProperties.WADL_FEATURE_DISABLE, false);
+        jersey.getResourceConfig().addProperties(properties);
 
         Binder binder = new Binder(cfg);
         jersey.register(binder);
