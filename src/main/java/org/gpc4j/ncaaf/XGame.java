@@ -36,6 +36,18 @@ public class XGame extends Game {
             = LoggerFactory.getLogger(XGame.class);
 
 
+    public XGame(Game g) {
+        setHome(g.getHome());
+        setHomeRank(g.getHomeRank());
+        setHomeScore(g.getHomeScore());
+        setVisitor(g.getVisitor());
+        setVisitorRank(g.getVisitorRank());
+        setVisitorScore(g.getVisitorScore());
+        setDate(g.getDate());
+        setId(g.getId());
+    }
+
+
     public XGame(String entry) {
         this.entry = entry;
         setId(getGameId(entry));
