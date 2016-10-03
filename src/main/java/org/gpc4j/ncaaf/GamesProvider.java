@@ -38,7 +38,7 @@ public class GamesProvider {
 
         Jedis jedis = pool.getResource();
         try {
-            for (String key : jedis.keys("game.2016.*")) {
+            for (String key : jedis.keys("game.*")) {
                 games.add(new GetGameCommand(key, pool).execute());
             }
             LOG.info("Games Loaded.");
