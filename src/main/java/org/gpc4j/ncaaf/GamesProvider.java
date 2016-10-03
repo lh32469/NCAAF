@@ -51,7 +51,15 @@ public class GamesProvider {
 
 
     public Stream<Game> getGames() {
-        return games.parallelStream();
+        // Need to return clone of games
+        final List<Game> results = new LinkedList<>();
+
+        games.forEach(g -> {
+            Game gNew = new XGame(g);
+            results.add(gNew);
+        });
+
+        return results.parallelStream();
     }
 
 
