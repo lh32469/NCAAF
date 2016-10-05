@@ -96,7 +96,7 @@ public class GamesProvider {
 
 
     public Stream<Game> getGames() {
-        
+
         return games.parallelStream()
                 .map(g -> (Game) new XGame(g)) // Need to return clone of games
                 .peek(anonymizeId());
@@ -123,6 +123,9 @@ public class GamesProvider {
 
     public Stream<Game> byTeamAndYear(String teamName, Integer year) {
 
+        // Don't use other methods to avoid needlessly creating Game clones
+        // only to then filter them out.
+        
         return games.parallelStream()
                 .filter(team(teamName))
                 .filter(played(year))
