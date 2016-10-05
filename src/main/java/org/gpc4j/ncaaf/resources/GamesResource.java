@@ -2,9 +2,8 @@ package org.gpc4j.ncaaf.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -25,6 +24,87 @@ import org.slf4j.LoggerFactory;
 @Path("games")
 public class GamesResource {
 
+    final Predicate<String> empty = s -> Strings.isNullOrEmpty(s);
+
+
+    /**
+     * Check if Game was played in the year provided.
+     *
+     * @param year
+     * @return
+     */
+    private static Predicate<Game> played(Integer year) {
+        return g -> !Strings.isNullOrEmpty(g.getHomeScore())
+                && !Strings.isNullOrEmpty(g.getDate())
+                && g.getDate().contains(year.toString());
+    }
+
+
+    /**
+     * Check if Game was a win for the team name provided.
+     *
+     * @param teamName
+     * @return
+     */
+    private static Predicate<Game> win(String teamName) {
+        return g -> {
+
+            if (!finished().test(g)) {
+                return false;
+            }
+
+            int hScore = Integer.parseInt(g.getHomeScore());
+            int vScore = Integer.parseInt(g.getVisitorScore());
+
+            if (g.getHome().equals(teamName) && hScore > vScore) {
+                return true;
+            } else if (g.getVisitor().equals(teamName) && vScore > hScore) {
+                return true;
+            }
+
+            return false;
+        };
+    }
+
+
+    /**
+     * Check if Game was a loss for the team name provided.
+     *
+     * @param teamName
+     * @return
+     */
+    private static Predicate<Game> loss(String teamName) {
+        return g -> finished().test(g) && !win(teamName).test(g);
+    }
+
+
+    /**
+     * Check if Game was against a then ranked opponent.
+     *
+     * @param teamName
+     * @return
+     */
+    private static Predicate<Game> rankedOpponent(String teamName) {
+        return game -> {
+
+            if (game.getHome().equals(teamName)
+                    && !Strings.isNullOrEmpty(game.getVisitorRank())) {
+                return true;
+            } else if (game.getVisitor().equals(teamName)
+                    && !Strings.isNullOrEmpty(game.getHomeRank())) {
+                return true;
+            }
+
+            return false;
+        };
+    }
+
+
+    private static Predicate<Game> finished() {
+        return g -> !Strings.isNullOrEmpty(g.getHomeScore());
+    }
+
+
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GamesResource.class);
 
@@ -39,15 +119,9 @@ public class GamesResource {
         MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getAllGamesPlayedForYear(@PathParam("year") Integer year) {
 
-        List<Game> games = gp.getGames()
-                .filter((game) -> !Strings.isNullOrEmpty(game.getHomeScore()))
-                .filter((game) -> !Strings.isNullOrEmpty(game.getDate()))
-                .filter((game) -> game.getDate().contains(year.toString()))
+        final List<Game> games = gp.byYear(year)
+                .filter(finished())
                 .collect(Collectors.toList());
-
-        games.forEach((g) -> {
-            g.setId("");
-        });
 
         Games g = new Games();
         g.getGame().addAll(games);
@@ -60,20 +134,14 @@ public class GamesResource {
 
     @GET
     @Timed
-    @Path("team/{team}")
+    @Path("{team}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getAllGamesPlayedForTeam(@PathParam("team") String team) {
 
-        List<Game> games = gp.getGames()
-                .filter((game) -> !Strings.isNullOrEmpty(game.getHomeScore()))
-                .filter((game) -> game.getHome().equals(team)
-                        || game.getVisitor().equals(team))
+        List<Game> games = gp.byTeam(team)
+                .filter(finished())
                 .collect(Collectors.toList());
-
-        games.forEach((g) -> {
-            g.setId("");
-        });
 
         LOG.debug(team + ": " + games.size());
         Games g = new Games();
@@ -85,28 +153,41 @@ public class GamesResource {
 
     @GET
     @Timed
-    @Path("team/{team}/{year}")
+    @Path("{team}/{year}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getGamesPlayedForTeamByYear(
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
 
-        Games g = getAllGamesPlayedForTeam(team);
-        Iterator<Game> games = g.getGame().iterator();
-        while (games.hasNext()) {
-            Game game = games.next();
-            if (Strings.isNullOrEmpty(game.getDate())) {
-                games.remove();
-            } else if (!game.getDate().contains(year.toString())) {
-                games.remove();
-            } else if (Strings.isNullOrEmpty(game.getHomeScore())) {
-                // Game not played yet.
-                games.remove();
-            }
-        }
+        List<Game> games = gp.byTeamAndYear(team, year)
+                .filter(finished())
+                .collect(Collectors.toList());
+
+        Games g = new Games();
+        g.getGame().addAll(games);
 
         LOG.debug(year.toString() + "/" + team + ": " + g.getGame().size());
+
+        return g;
+    }
+
+
+    @GET
+    @Timed
+    @Path("wins/{team}")
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
+    public Games getWinsForTeam(@PathParam("team") String team) {
+
+        List<Game> games = gp.byTeam(team)
+                .filter(win(team))
+                .collect(Collectors.toList());
+
+        Games g = new Games();
+        g.getGame().addAll(games);
+
+        LOG.debug(team + ": " + g.getGame().size());
 
         return g;
     }
@@ -121,21 +202,12 @@ public class GamesResource {
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
 
-        Games g = getGamesPlayedForTeamByYear(year, team);
+        List<Game> games = gp.byTeamAndYear(team, year)
+                .filter(win(team))
+                .collect(Collectors.toList());
 
-        Iterator<Game> games = g.getGame().iterator();
-
-        while (games.hasNext()) {
-            Game game = games.next();
-
-            int hScore = Integer.parseInt(game.getHomeScore());
-            int vScore = Integer.parseInt(game.getVisitorScore());
-            if (game.getHome().equals(team) && hScore < vScore) {
-                games.remove();
-            } else if (game.getVisitor().equals(team) && vScore < hScore) {
-                games.remove();
-            }
-        }
+        Games g = new Games();
+        g.getGame().addAll(games);
 
         LOG.debug(year.toString() + "/" + team + ": " + g.getGame().size());
 
@@ -152,23 +224,35 @@ public class GamesResource {
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
 
-        Games g = getWinsForTeamByYear(year, team);
+        List<Game> games = gp.byTeamAndYear(team, year)
+                .filter(win(team).and(rankedOpponent(team)))
+                .collect(Collectors.toList());
 
-        Iterator<Game> games = g.getGame().iterator();
-
-        while (games.hasNext()) {
-            Game game = games.next();
-            if (game.getHome().equals(team)
-                    && Strings.isNullOrEmpty(game.getVisitorRank())) {
-                games.remove();
-            } else if (game.getVisitor().equals(team)
-                    && Strings.isNullOrEmpty(game.getHomeRank())) {
-                games.remove();
-            }
-
-        }
+        Games g = new Games();
+        g.getGame().addAll(games);
 
         LOG.debug(year.toString() + "/" + team + ": " + g.getGame().size());
+
+        return g;
+    }
+
+
+    @GET
+    @Timed
+    @Path("wins/ranked/{team}")
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
+    public Games getWinsForTeamRanked(@PathParam("team") String team) {
+
+        List<Game> games = gp.byTeam(team)
+                .filter(win(team))
+                .filter(rankedOpponent(team))
+                .collect(Collectors.toList());
+
+        Games g = new Games();
+        g.getGame().addAll(games);
+
+        LOG.debug(team + ": " + g.getGame().size());
 
         return g;
     }
@@ -183,10 +267,13 @@ public class GamesResource {
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
 
-        Games g = getGamesPlayedForTeamByYear(year, team);
-        Games wins = getWinsForTeamByYear(year, team);
+        List<Game> games = gp.byTeamAndYear(team, year)
+                .filter(finished())
+                .filter(loss(team))
+                .collect(Collectors.toList());
 
-        g.getGame().removeAll(wins.getGame());
+        Games g = new Games();
+        g.getGame().addAll(games);
 
         LOG.debug(year.toString() + "/" + team + ": " + g.getGame().size());
 
