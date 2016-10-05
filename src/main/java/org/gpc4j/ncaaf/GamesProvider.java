@@ -1,8 +1,12 @@
 package org.gpc4j.ncaaf;
 
+import com.google.common.base.Strings;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.gpc4j.ncaaf.hystrix.GetGameCommand;
 import org.gpc4j.ncaaf.jaxb.Game;
@@ -16,6 +20,47 @@ import redis.clients.jedis.JedisPool;
  * @author Lyle T Harris
  */
 public class GamesProvider {
+
+    /**
+     * Check if Game was played in the year provided.
+     *
+     * @param year
+     * @return
+     */
+    private static Predicate<Game> played(Integer year) {
+        return g -> !Strings.isNullOrEmpty(g.getHomeScore())
+                && !Strings.isNullOrEmpty(g.getDate())
+                && g.getDate().contains(year.toString());
+    }
+
+
+    /**
+     * Check if the game involved the team name provided.
+     *
+     * @param teamName
+     * @return
+     */
+    private static Predicate<Game> team(String teamName) {
+        return g -> g.getHome().equals(teamName)
+                || g.getVisitor().equals(teamName);
+    }
+
+
+    /**
+     * Set the Id of the Game to something other than the ESPN Id but related to
+     * it.
+     *
+     * @return
+     */
+    private static Consumer<Game> anonymizeId() {
+        return g -> {
+            String origId = g.getId();
+            int hash = origId.hashCode() * 31;
+            hash = Math.abs(hash);
+            g.setId(Integer.toHexString(hash));
+        };
+    }
+
 
     private final JedisPool pool;
 
@@ -51,15 +96,38 @@ public class GamesProvider {
 
 
     public Stream<Game> getGames() {
-        // Need to return clone of games
-        final List<Game> results = new LinkedList<>();
+        
+        return games.parallelStream()
+                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .peek(anonymizeId());
+    }
 
-        games.forEach(g -> {
-            Game gNew = new XGame(g);
-            results.add(gNew);
-        });
 
-        return results.parallelStream();
+    public Stream<Game> byYear(Integer year) {
+
+        return games.parallelStream()
+                .filter(played(year))
+                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .peek(anonymizeId());
+    }
+
+
+    public Stream<Game> byTeam(String teamName) {
+
+        return games.parallelStream()
+                .filter(team(teamName))
+                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .peek(anonymizeId());
+    }
+
+
+    public Stream<Game> byTeamAndYear(String teamName, Integer year) {
+
+        return games.parallelStream()
+                .filter(team(teamName))
+                .filter(played(year))
+                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .peek(anonymizeId());
     }
 
 
