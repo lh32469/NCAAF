@@ -62,6 +62,7 @@ public class AP_View extends View {
 
         // Should be moved to Redis at some point.
         SUBS.put("Mississippi", "Ole Miss");
+        SUBS.put("Miami (FL)", "Miami");
 
     }
 
