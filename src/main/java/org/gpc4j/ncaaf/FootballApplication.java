@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.glassfish.jersey.message.MessageProperties;
 import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.server.wadl.WadlFeature;
 import org.gpc4j.ncaaf.resources.GamesResource;
 import org.gpc4j.ncaaf.resources.UpdateSchedule;
+import org.gpc4j.ncaaf.writers.GamesWriter;
 
 
 /**
@@ -61,6 +61,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
         jersey.register(AP.class);
         jersey.register(UpdateSchedule.class);
         jersey.register(GamesResource.class);
+        jersey.register(GamesWriter.class);
         jersey.property(MessageProperties.XML_FORMAT_OUTPUT, true);
 
         Map<String, Object> properties = new HashMap<>();
