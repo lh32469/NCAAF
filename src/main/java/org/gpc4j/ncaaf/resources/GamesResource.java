@@ -3,6 +3,8 @@ package org.gpc4j.ncaaf.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -33,7 +35,7 @@ public class GamesResource {
      * @param year
      * @return
      */
-    private static Predicate<Game> played(Integer year) {
+    public static Predicate<Game> played(Integer year) {
         return g -> !Strings.isNullOrEmpty(g.getHomeScore())
                 && !Strings.isNullOrEmpty(g.getDate())
                 && g.getDate().contains(year.toString());
@@ -46,7 +48,7 @@ public class GamesResource {
      * @param teamName
      * @return
      */
-    private static Predicate<Game> win(String teamName) {
+    public static Predicate<Game> win(String teamName) {
         return g -> {
 
             if (!finished().test(g)) {
@@ -73,7 +75,7 @@ public class GamesResource {
      * @param teamName
      * @return
      */
-    private static Predicate<Game> loss(String teamName) {
+    public static Predicate<Game> loss(String teamName) {
         return g -> finished().test(g) && !win(teamName).test(g);
     }
 
@@ -84,7 +86,7 @@ public class GamesResource {
      * @param teamName
      * @return
      */
-    private static Predicate<Game> rankedOpponent(String teamName) {
+    public static Predicate<Game> rankedOpponent(String teamName) {
         return game -> {
 
             if (game.getHome().equals(teamName)
@@ -100,7 +102,7 @@ public class GamesResource {
     }
 
 
-    private static Predicate<Game> finished() {
+    public static Predicate<Game> finished() {
         return g -> !Strings.isNullOrEmpty(g.getHomeScore());
     }
 
@@ -115,8 +117,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("year/{year}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getAllGamesPlayedForYear(@PathParam("year") Integer year) {
 
         final List<Game> games = gp.byYear(year)
@@ -135,8 +135,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("{team}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getAllGamesPlayedForTeam(@PathParam("team") String team) {
 
         List<Game> games = gp.byTeam(team)
@@ -153,9 +151,78 @@ public class GamesResource {
 
     @GET
     @Timed
-    @Path("{team}/{year}")
+    @Path("points/{team}")
+    public String points(@PathParam("team") String team) {
+
+        Integer total = gp.byTeam(team)
+                .filter(finished())
+                .map(g -> {
+                    if (g.getHome().equals(team)) {
+                        return Integer.parseInt(g.getHomeScore());
+                    } else {
+                        return Integer.parseInt(g.getVisitorScore());
+                    }
+                })
+                .mapToInt(Integer::new)
+                .sum();
+
+        LOG.debug(team + ": " + total);
+
+        return total.toString();
+    }
+
+
+    @GET
+    @Timed
+    @Path("best/{team}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
+    public Game best(@PathParam("team") String team) {
+
+        Optional<Game> best = gp.byTeam(team)
+                .filter(finished())
+                .reduce((g1, g2) -> {
+
+                    int g1Score;
+                    if (g1.getHome().equals(team)) {
+                        g1Score = Integer.parseInt(g1.getHomeScore())
+                        - Integer.parseInt(g1.getVisitorScore());
+                    } else {
+                        g1Score = Integer.parseInt(g1.getVisitorScore())
+                        - Integer.parseInt(g1.getHomeScore());;
+                    }
+
+                    int g2Score;
+                    if (g2.getHome().equals(team)) {
+                        g2Score = Integer.parseInt(g2.getHomeScore())
+                        - Integer.parseInt(g2.getVisitorScore());
+                    } else {
+                        g2Score = Integer.parseInt(g2.getVisitorScore())
+                        - Integer.parseInt(g2.getHomeScore());
+                    }
+
+                    if (g1Score > g2Score) {
+//                        LOG.info(g1.getId() + " (" + g1Score + ") > ("
+//                                + g2.getId() + " (" + g2Score + ")");
+                        return g1;
+                    } else {
+//                        LOG.info(g2.getId() + " (" + g2Score + ") > ("
+//                                + g1.getId() + " (" + g1Score + ")");
+                        return g2;
+                    }
+
+                });
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(team + ": " + best.get());
+        }
+        return best.get();
+    }
+
+
+    @GET
+    @Timed
+    @Path("{team}/{year}")
     public Games getGamesPlayedForTeamByYear(
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
@@ -176,8 +243,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("wins/{team}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getWinsForTeam(@PathParam("team") String team) {
 
         List<Game> games = gp.byTeam(team)
@@ -196,8 +261,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("wins/{team}/{year}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getWinsForTeamByYear(
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
@@ -218,8 +281,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("wins/ranked/{team}/{year}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getWinsForTeamByYearRanked(
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
@@ -240,8 +301,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("wins/ranked/{team}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getWinsForTeamRanked(@PathParam("team") String team) {
 
         List<Game> games = gp.byTeam(team)
@@ -261,8 +320,6 @@ public class GamesResource {
     @GET
     @Timed
     @Path("losses/{team}/{year}")
-    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
-        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Games getLossesForTeamByYear(
             @PathParam("year") Integer year,
             @PathParam("team") String team) {
@@ -278,6 +335,36 @@ public class GamesResource {
         LOG.debug(year.toString() + "/" + team + ": " + g.getGame().size());
 
         return g;
+    }
+
+
+    private final static BinaryOperator<Game> better(String team) {
+
+        final BinaryOperator<Game> operator = (g1, g2) -> {
+
+            int g1Score = 0;
+            if (g1.getHome().equals(team)) {
+                g1Score = Integer.parseInt(g1.getHomeScore());
+            } else {
+                g1Score = Integer.parseInt(g1.getVisitorScore());
+            }
+
+            int g2Score = 0;
+            if (g2.getHome().equals(team)) {
+                g2Score = Integer.parseInt(g2.getHomeScore());
+            } else {
+                g2Score = Integer.parseInt(g2.getVisitorScore());
+            }
+
+            if (g1Score > g2Score) {
+                return g1;
+            } else {
+                return g2;
+            }
+
+        };
+
+        return operator;
     }
 
 
