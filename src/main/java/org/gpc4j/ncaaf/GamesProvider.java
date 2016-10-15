@@ -1,6 +1,7 @@
 package org.gpc4j.ncaaf;
 
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,7 +65,10 @@ public class GamesProvider {
 
     private final JedisPool pool;
 
-    private final List<Game> games = new LinkedList<>();
+    /**
+     * Use ArrayList as it's better for parallel Streams access.
+     */
+    private final List<Game> games = new ArrayList<>();
 
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GamesProvider.class);
