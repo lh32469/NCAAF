@@ -9,13 +9,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Path;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.gpc4j.ncaaf.jaxb.Week;
+import org.gpc4j.ncaaf.resources.GamesResource;
 import org.slf4j.LoggerFactory;
 
 
@@ -171,49 +172,22 @@ public class AP_View extends View {
     }
 
 
-    public String getRecord(Team team) {
-        LOG.debug("[" + team.getName() + "]");
+    public String getRecord(int week, Team team) {
 
-        final String name = team.getName();
-        final AtomicInteger wins = new AtomicInteger(0);
-        final AtomicInteger losses = new AtomicInteger(0);
+        LocalDateTime gDay = SATURDAYS.get(week);
+        LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
-        gp.getGames().forEach((game) -> {
-            if (game.getHomeScore() != null) {
+        List<Game> games = gp.byTeam(team.getName()).filter(g -> {
+            LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+            return gDate.isBefore(gDay.minusDays(3));
+        }).collect(Collectors.toList());
 
-                try {
-                    if (game.getHome().equals(name)) {
-                        int home = Integer.parseInt(game.getHomeScore());
-                        int visitor = Integer.parseInt(game.getVisitorScore());
-                        LOG.trace("Home: " + name);
-                        if (home > visitor) {
-                            LOG.debug("Win@Home: " + name);
-                            wins.incrementAndGet();
-                        } else {
-                            LOG.debug("Loss@Home: " + name);
-                            losses.incrementAndGet();
-                        }
-                    } else if (game.getVisitor().equals(name)) {
-                        LOG.trace("Visitor: " + name);
-                        int home = Integer.parseInt(game.getHomeScore());
-                        int visitor = Integer.parseInt(game.getVisitorScore());
-                        if (visitor > home) {
-                            LOG.debug("Win@Away: " + name);
-                            wins.incrementAndGet();
-                        } else {
-                            LOG.debug("Loss@Away: " + name);
-                            losses.incrementAndGet();
-                        }
-                    }
-                } catch (NumberFormatException ex) {
-                    LOG.error(ex.getLocalizedMessage() + " " + game);
-                }
+        long wins = games
+                .stream()
+                .filter(GamesResource.win(team.getName()))
+                .count();
 
-            }
-
-        });
-
-        return wins + " - " + losses;
+        return wins + " - " + (games.size() - wins);
     }
 
 
@@ -246,6 +220,7 @@ public class AP_View extends View {
         LocalDateTime gDay = SATURDAYS.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
+        // TODO: Shouldn't need loop here..
         for (String key : SUBS.keySet()) {
             if (team.getName().trim().equals(key)) {
                 team.setName(SUBS.get(key));
