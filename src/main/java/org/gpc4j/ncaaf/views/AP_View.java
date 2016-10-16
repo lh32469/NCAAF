@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
@@ -220,57 +221,27 @@ public class AP_View extends View {
         LocalDateTime gDay = SATURDAYS.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
-        // TODO: Shouldn't need loop here..
-        for (String key : SUBS.keySet()) {
-            if (team.getName().trim().equals(key)) {
-                team.setName(SUBS.get(key));
-            }
+        String subs = SUBS.get(team.getName().trim());
+
+        if (subs != null) {
+            team.setName(subs);
         }
 
-        final String teamName = team.getName().trim();
-        final List<Game> results
-                = Collections.synchronizedList(new LinkedList<>());
-
-        gp.getGames().forEachOrdered((game) -> {
-
-            final String home = game.getHome();
-            final String visitor = game.getVisitor();
-            // LOG.info("[" + visitor + "] @ [" + home + "]");
-
-            if (home.equals(teamName)) {
-                LOG.debug("Found Home: " + visitor + " @ " + home);
-                results.add(game);
-            } else if (visitor.equals(teamName)) {
-                LOG.debug("Found Vistor: " + visitor + " @ " + home);
-                results.add(game);
-            }
-
-        });
-
-        LOG.debug("Results Found: " + results.size());
-
-        Game game = null;
-
-        for (Game g : results) {
+        Optional<Game> game = gp.byTeam(team.getName()).filter(g -> {
             LocalDateTime gDate = LocalDateTime.parse(g.getDate());
-            if (gDay.plusDays(4).isAfter(gDate)
-                    && gDay.minusDays(4).isBefore(gDate)) {
-                LOG.debug("DGame: " + g);
-                game = g;
-            }
+            return gDay.plusDays(4).isAfter(gDate)
+                    && gDay.minusDays(4).isBefore(gDate);
+        }).findFirst();
+
+        if (!game.isPresent()) {
+            LOG.debug("No Game Week " + week + " for " + team.getName());
+            Game bye = new Game();
+            bye.setHome("Bye");
+            bye.setVisitor("Bye");
+            game = Optional.of(bye);
         }
 
-        if (game == null) {
-            LOG.warn("No Game Week " + week + " for " + team.getName());
-            LOG.warn("Results Found: " + results);
-            game = new Game();
-            game.setHome("Bye");
-            game.setVisitor("Bye");
-        }
-
-//        LOG.info(week + ": " + team.getName()
-//                + " vs " + results.get(0));
-        return game;
+        return game.get();
     }
 
 
