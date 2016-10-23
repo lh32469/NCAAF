@@ -33,6 +33,10 @@ public class AP_View extends View {
     private static final String image = "http://www.marook-online.de/tp-images/"
             + "1uid106189-3d-glossy-orange-orb-icon-signs-no-walking1.png";
 
+    private static final String BYE
+            = "https://pixabay.com/static/uploads/photo/"
+            + "2012/04/05/01/08/sleep-25528_960_720.png";
+
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(AP_View.class);
 
@@ -210,7 +214,7 @@ public class AP_View extends View {
         } else {
             Team t = new Team();
             t.setName("Unknown");
-            t.setImage(image);
+            t.setImage(BYE);
             return t;
         }
 
