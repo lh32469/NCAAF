@@ -14,12 +14,18 @@ import redis.clients.jedis.JedisPoolConfig;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.Logger;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.dropwizard.assets.AssetsBundle;
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
 import java.util.HashMap;
 import java.util.Map;
 import org.glassfish.jersey.message.MessageProperties;
 import org.glassfish.jersey.server.ServerProperties;
+import org.gpc4j.ncaaf.resources.BracketsResource;
 import org.gpc4j.ncaaf.resources.GamesResource;
 import org.gpc4j.ncaaf.resources.UpdateSchedule;
+import org.gpc4j.ncaaf.writers.GameWriter;
 import org.gpc4j.ncaaf.writers.GamesWriter;
 
 
@@ -39,6 +45,8 @@ public class FootballApplication extends Application<FootballConfiguration> {
         bootstrap.getObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         bootstrap.addBundle(HystrixBundle.withDefaultSettings());
         bootstrap.addBundle(new ViewBundle());
+        bootstrap.addBundle(new AssetsBundle("/swagger", "/swagger", "index.html", "swagger"));
+        bootstrap.addBundle(new AssetsBundle("/images", "/images", "/", "images"));
     }
 
 
@@ -61,8 +69,21 @@ public class FootballApplication extends Application<FootballConfiguration> {
         jersey.register(AP.class);
         jersey.register(UpdateSchedule.class);
         jersey.register(GamesResource.class);
+        jersey.register(BracketsResource.class);
         jersey.register(GamesWriter.class);
+        jersey.register(GameWriter.class);
         jersey.property(MessageProperties.XML_FORMAT_OUTPUT, true);
+
+        // <editor-fold defaultstate="collapsed" desc="Swagger Config">
+        jersey.register(ApiListingResource.class);
+        env.getObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        BeanConfig config = new BeanConfig();
+        config.setTitle("NCAAF Weekly Graphic REST Services");
+        config.setVersion("1.0.0");
+        config.setResourcePackage("org.gpc4j.ncaaf.resources");
+        config.setScan(true);
+        // </editor-fold>
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ServerProperties.WADL_FEATURE_DISABLE, false);

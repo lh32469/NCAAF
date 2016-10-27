@@ -27,13 +27,16 @@
     
     <xs:complexType name="team">
         <xs:sequence>
-            <xs:element name="name"
-                        maxOccurs="1"
-                        type="xs:string"/>
             <xs:element name="cX"
                         maxOccurs="1"
                         type="xs:int"/>
             <xs:element name="cY"
+                        maxOccurs="1"
+                        type="xs:int"/>
+            <xs:element name="wins"
+                        maxOccurs="1"
+                        type="xs:int"/>
+            <xs:element name="losses"
                         maxOccurs="1"
                         type="xs:int"/>
             <xs:element name="image"
@@ -46,6 +49,7 @@
                         maxOccurs="1"
                         type="game"/>
         </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
     </xs:complexType>
 
 </xs:schema>

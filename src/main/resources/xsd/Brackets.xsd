@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           xmlns:hn="http://jaxb.ncaaf.gpc4j.org"
+           jaxb:version="2.1"
+           jaxb:extensionBindingPrefixes="xjc"
+           xmlns="http://jaxb.ncaaf.gpc4j.org"
+           targetNamespace="http://jaxb.ncaaf.gpc4j.org"
+           elementFormDefault="qualified">
+  
+    <xs:include schemaLocation="Conference.xsd"/>
+     
+    <xs:element name="bracket" >
+        <xs:complexType >
+            <xs:sequence>
+                <xs:element name="conference"
+                            maxOccurs="4"
+                            type="conference"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
