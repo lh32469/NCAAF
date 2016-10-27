@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -78,6 +79,8 @@ public class GameWriter implements MessageBodyWriter<Game> {
 
         } catch (JAXBException ex) {
             LOG.error("Error", ex);
+            throw new ProcessingException(
+                    "Error serializing a Game to the output stream", ex);
         }
 
     }
