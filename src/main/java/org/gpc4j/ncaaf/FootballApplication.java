@@ -82,6 +82,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
         config.setTitle("NCAAF Weekly Graphic REST Services");
         config.setVersion("1.0.0");
         config.setResourcePackage("org.gpc4j.ncaaf.resources");
+        config.setBasePath(cfg.getBasePath());
         config.setScan(true);
         // </editor-fold>
 

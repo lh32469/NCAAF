@@ -25,6 +25,8 @@ public class FootballConfiguration extends Configuration {
 
     private String redisPass;
 
+    private String basePath;
+
 
     public String getVersion() {
         return version;
@@ -65,6 +67,16 @@ public class FootballConfiguration extends Configuration {
 
     public void setRedisPass(String redisPass) {
         this.redisPass = redisPass;
+    }
+
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 
 

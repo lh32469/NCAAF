@@ -2,6 +2,7 @@ version: "1.0"
 redisHost: "macmini.local"
 redisPort: 6388
 redisPass: welcome1
+basePath: "/ncaaf"
 
 server:
   applicationConnectors:
