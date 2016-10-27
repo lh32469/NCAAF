@@ -2,6 +2,11 @@ package org.gpc4j.ncaaf.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
@@ -14,6 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.gpc4j.ncaaf.GamesProvider;
+import org.gpc4j.ncaaf.jaxb.Conference;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Games;
 import org.slf4j.LoggerFactory;
@@ -24,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Lyle T Harris
  */
 @Path("games")
+@Api(value = "Games", description = "Operations about games")
 public class GamesResource {
 
     final Predicate<String> empty = s -> Strings.isNullOrEmpty(s);
@@ -65,6 +72,31 @@ public class GamesResource {
             }
 
             return false;
+        };
+    }
+
+
+    /**
+     * Check if Game is in the Conference provided.
+     *
+     * @param conference
+     * @return
+     */
+    public static Predicate<Game> inConference(Conference conference) {
+
+        return (Game game) -> {
+
+            // Collect all Team names
+            final List<String> teamNames = new LinkedList<>();
+            conference.getDivision().stream().forEach((division) -> {
+                division.getTeam().stream().forEach((team) -> {
+                    teamNames.add(team.getName());
+                });
+            });
+
+            return teamNames.contains(game.getHome())
+                    && teamNames.contains(game.getVisitor());
+
         };
     }
 
@@ -172,12 +204,18 @@ public class GamesResource {
     }
 
 
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid team supplied"),
+        @ApiResponse(code = 200, message = "Ok", response = Game.class),
+        @ApiResponse(code = 404, message = "Game not found")})
     @GET
     @Timed
     @Path("best/{team}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
-    public Game best(@PathParam("team") String team) {
+    public Game best(
+            @ApiParam(name = "team")
+            @PathParam("team") String team) {
 
         Optional<Game> best = gp.byTeam(team)
                 .filter(finished())
