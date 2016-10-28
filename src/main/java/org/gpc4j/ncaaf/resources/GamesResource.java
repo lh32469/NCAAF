@@ -3,6 +3,7 @@ package org.gpc4j.ncaaf.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -18,6 +19,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.jaxb.Conference;
 import org.gpc4j.ncaaf.jaxb.Game;
@@ -204,8 +206,12 @@ public class GamesResource {
     }
 
 
+    @ApiOperation(
+            value = "Get the 'best' game for the team provided",
+            notes = "Best games is currently defined as won "
+            + "by the biggest margin.",
+            response = Game.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 400, message = "Invalid team supplied"),
         @ApiResponse(code = 200, message = "Ok", response = Game.class),
         @ApiResponse(code = 404, message = "Game not found")})
     @GET
@@ -213,7 +219,7 @@ public class GamesResource {
     @Path("best/{team}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
-    public Game best(
+    public Response best(
             @ApiParam(name = "team")
             @PathParam("team") String team) {
 
@@ -251,10 +257,15 @@ public class GamesResource {
 
                 });
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(team + ": " + best.get());
+        if (best.isPresent()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(team + ": " + best.get());
+            }
+            return Response.ok(best.get()).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return best.get();
+
     }
 
 
