@@ -208,7 +208,7 @@ public class GamesResource {
 
     @ApiOperation(
             value = "Get the 'best' game for the team provided",
-            notes = "Best games is currently defined as won "
+            notes = "Best game is currently defined as the game won "
             + "by the biggest margin.",
             response = Game.class)
     @ApiResponses(value = {
