@@ -2,6 +2,7 @@ package org.gpc4j.ncaaf.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.Collections;
@@ -15,6 +16,8 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.jaxb.Bracket;
 import org.gpc4j.ncaaf.jaxb.Conference;
@@ -63,6 +66,8 @@ public class BracketsResource {
 
     @GET
     @Timed
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Bracket get() {
         Bracket bracket = new Bracket();
         Set<String> confs = jedis.keys("*.conf");
@@ -118,10 +123,11 @@ public class BracketsResource {
     @GET
     @Timed
     @Path("leaders")
-    @ApiResponses(value = {
-        @ApiResponse(code = 400, message = "Invalid team supplied"),
-        @ApiResponse(code = 200, message = "Ok", response = Bracket.class),
-        @ApiResponse(code = 404, message = "Game not found")})
+    @ApiOperation(
+            value = "Get the leaders for the Divisions of every Conference",
+            response = Bracket.class)
+    @Produces({MediaType.APPLICATION_JSON + ";qs=1",
+        MediaType.APPLICATION_XML + ";qs=0.5"})
     public Bracket getLeaders() {
 
         Bracket bracket = get();
