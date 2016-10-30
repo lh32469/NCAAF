@@ -65,6 +65,7 @@ public class GetWeekCommand extends HystrixCommand<Week> {
     @Timed
     protected Week run() throws Exception {
         Week week = new Week();
+        LOG.debug("Entering: " + key);
 
         Jedis jedis = pool.getResource();
         int y = 25;
@@ -86,6 +87,7 @@ public class GetWeekCommand extends HystrixCommand<Week> {
             pool.returnResource(jedis);
         }
 
+        LOG.debug("Exiting: " + key);
         return week;
     }
 
