@@ -52,6 +52,20 @@ public class GamesResource {
 
 
     /**
+     * Check if Game played involved the named Team.
+     *
+     * @param teamName
+     * @return
+     */
+    public static Predicate<Game> played(String teamName) {
+        return g -> {
+            return g.getHome().equals(teamName)
+                    || g.getVisitor().equals(teamName);
+        };
+    }
+
+
+    /**
      * Check if Game was a win for the team name provided.
      *
      * @param teamName
