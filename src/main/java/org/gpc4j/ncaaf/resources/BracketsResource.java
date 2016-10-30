@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -104,12 +105,22 @@ public class BracketsResource {
             // Sort Divisions
             for (Division div : conference.getDivision()) {
                 div.getTeam().stream().forEach(team -> {
-                    long conferenceWins = gp.getGames()
-                            .filter(GamesResource.win(team.getName()))
+
+                    List<Game> confGames = gp.getGames()
                             .filter(GamesResource.inConference(conference))
+                            .collect(Collectors.toList());
+
+                    long conferenceWins = confGames.stream()
+                            .filter(GamesResource.win(team.getName()))
+                            .count();
+
+                    long conferenceLosses = confGames.stream()
+                            .filter(GamesResource.played(team.getName()))
+                            .filter(GamesResource.loss(team.getName()))
                             .count();
 
                     team.setWins((int) conferenceWins);
+                    team.setLosses((int) conferenceLosses);
                 });
                 Collections.sort(div.getTeam(), new TeamSorter());
             }
@@ -149,7 +160,12 @@ public class BracketsResource {
 
         @Override
         public int compare(Team team1, Team team2) {
-            return team2.getWins() - team1.getWins();
+            int result = team2.getWins() - team1.getWins();
+            if (result == 0) {
+                // Same amount of wins, compare losses
+                result = team1.getLosses() - team2.getLosses();
+            }
+            return result;
         }
 
 
