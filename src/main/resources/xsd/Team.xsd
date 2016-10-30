@@ -39,6 +39,12 @@
             <xs:element name="losses"
                         maxOccurs="1"
                         type="xs:int"/>
+            <xs:element name="confWins"
+                        maxOccurs="1"
+                        type="xs:int"/>
+            <xs:element name="confLosses"
+                        maxOccurs="1"
+                        type="xs:int"/>
             <xs:element name="image"
                         maxOccurs="1"
                         type="xs:string"/>

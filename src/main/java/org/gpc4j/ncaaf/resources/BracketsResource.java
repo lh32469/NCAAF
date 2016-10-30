@@ -106,7 +106,11 @@ public class BracketsResource {
             for (Division div : conference.getDivision()) {
                 div.getTeam().stream().forEach(team -> {
 
-                    List<Game> confGames = gp.getGames()
+                    List<Game> allGames = gp.getGames()
+                            .filter(GamesResource.played(team.getName()))
+                            .collect(Collectors.toList());
+
+                    List<Game> confGames = allGames.stream()
                             .filter(GamesResource.inConference(conference))
                             .collect(Collectors.toList());
 
@@ -114,13 +118,22 @@ public class BracketsResource {
                             .filter(GamesResource.win(team.getName()))
                             .count();
 
+                    long allWins = allGames.stream()
+                            .filter(GamesResource.win(team.getName()))
+                            .count();
+
                     long conferenceLosses = confGames.stream()
-                            .filter(GamesResource.played(team.getName()))
                             .filter(GamesResource.loss(team.getName()))
                             .count();
 
-                    team.setWins((int) conferenceWins);
-                    team.setLosses((int) conferenceLosses);
+                    long allLosses = allGames.stream()
+                            .filter(GamesResource.loss(team.getName()))
+                            .count();
+
+                    team.setConfWins((int) conferenceWins);
+                    team.setWins((int) allWins);
+                    team.setConfLosses((int) conferenceLosses);
+                    team.setLosses((int) allLosses);
                 });
                 Collections.sort(div.getTeam(), new TeamSorter());
             }
@@ -160,10 +173,14 @@ public class BracketsResource {
 
         @Override
         public int compare(Team team1, Team team2) {
-            int result = team2.getWins() - team1.getWins();
+            int result = team2.getConfWins() - team1.getConfWins();
             if (result == 0) {
                 // Same amount of wins, compare losses
-                result = team1.getLosses() - team2.getLosses();
+                result = team1.getLosses() - team2.getConfLosses();
+            }
+            if (result == 0) {
+                // Same amount of conf wins and losses, compare all wins
+                result = team2.getWins() - team1.getWins();
             }
             return result;
         }
