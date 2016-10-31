@@ -34,8 +34,7 @@ public class AP_View extends View {
             + "1uid106189-3d-glossy-orange-orb-icon-signs-no-walking1.png";
 
     private static final String BYE
-            = "https://pixabay.com/static/uploads/photo/"
-            + "2012/04/05/01/08/sleep-25528_960_720.png";
+            = "http://www.gpc4j.org/ncaaf/images/bye.png";
 
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(AP_View.class);
