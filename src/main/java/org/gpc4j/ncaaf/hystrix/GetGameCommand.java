@@ -6,6 +6,9 @@ import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixThreadPoolProperties;
 import java.util.logging.Logger;
 import org.gpc4j.ncaaf.XGame;
+import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_COMMAND_PROPS;
+import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_GROUP_KEY;
+import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_THREAD_PROPERTIES;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -22,18 +25,6 @@ public class GetGameCommand extends HystrixCommand<Game> {
 
     private final JedisPool pool;
 
-    static final HystrixCommandGroupKey GROUP_KEY
-            = HystrixCommandGroupKey.Factory.asKey("Redis");
-
-    private static final HystrixCommandProperties.Setter COMMAND_PROPS
-            = HystrixCommandProperties.Setter()
-            .withExecutionTimeoutInMilliseconds(300000);
-
-    private static final HystrixThreadPoolProperties.Setter THREAD_PROPERTIES
-            = HystrixThreadPoolProperties.Setter()
-            .withQueueSizeRejectionThreshold(10000)
-            .withMaxQueueSize(1000);
-
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GetGameCommand.class);
 
@@ -45,10 +36,12 @@ public class GetGameCommand extends HystrixCommand<Game> {
      * @param jedis
      */
     public GetGameCommand(String key, JedisPool pool) {
+
         super(Setter
-                .withGroupKey(GetWeekCommand.GROUP_KEY)
-                .andThreadPoolPropertiesDefaults(THREAD_PROPERTIES)
-                .andCommandPropertiesDefaults(COMMAND_PROPS));
+                .withGroupKey(REDIS_GROUP_KEY)
+                .andThreadPoolPropertiesDefaults(REDIS_THREAD_PROPERTIES)
+                .andCommandPropertiesDefaults(REDIS_COMMAND_PROPS));
+        LOG.debug(key);
         this.key = key;
         this.pool = pool;
     }

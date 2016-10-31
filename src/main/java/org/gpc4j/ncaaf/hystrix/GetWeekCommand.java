@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.gpc4j.ncaaf.TeamProvider;
+import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_COMMAND_PROPS;
+import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_GROUP_KEY;
+import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_THREAD_PROPERTIES;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.gpc4j.ncaaf.jaxb.Week;
 import org.slf4j.LoggerFactory;
@@ -22,18 +25,6 @@ import redis.clients.jedis.JedisPool;
  */
 public class GetWeekCommand extends HystrixCommand<Week> {
 
-    static final HystrixCommandGroupKey GROUP_KEY
-            = HystrixCommandGroupKey.Factory.asKey("Redis");
-
-    private static final HystrixCommandProperties.Setter COMMAND_PROPS
-            = HystrixCommandProperties.Setter()
-            .withExecutionTimeoutInMilliseconds(300000);
-
-    private static final HystrixThreadPoolProperties.Setter THREAD_PROPERTIES
-            = HystrixThreadPoolProperties.Setter()
-            .withQueueSizeRejectionThreshold(10000)
-            .withMaxQueueSize(1000);
-
     /**
      * Default, not found image.
      */
@@ -46,14 +37,15 @@ public class GetWeekCommand extends HystrixCommand<Week> {
     private final JedisPool pool;
 
     private final String key;
+
     private final TeamProvider tp;
 
 
     public GetWeekCommand(String key, JedisPool pool, TeamProvider tp) {
         super(Setter
-                .withGroupKey(GetWeekCommand.GROUP_KEY)
-                .andThreadPoolPropertiesDefaults(THREAD_PROPERTIES)
-                .andCommandPropertiesDefaults(COMMAND_PROPS));
+                .withGroupKey(REDIS_GROUP_KEY)
+                .andThreadPoolPropertiesDefaults(REDIS_THREAD_PROPERTIES)
+                .andCommandPropertiesDefaults(REDIS_COMMAND_PROPS));
         this.key = key;
         this.pool = pool;
         this.tp = tp;
@@ -65,12 +57,14 @@ public class GetWeekCommand extends HystrixCommand<Week> {
     @Timed
     protected Week run() throws Exception {
         Week week = new Week();
-        LOG.debug("Entering: " + key);
+        LOG.debug("Entering: " + key + "  Active: " + pool.getNumActive());
 
         Jedis jedis = pool.getResource();
+
         int y = 25;
 
         try {
+            LOG.debug("Got Jedis Resource: " + key);
             if (jedis.exists(key)) {
 
                 for (String teamName : jedis.lrange(key, 0, 100)) {
@@ -84,6 +78,7 @@ public class GetWeekCommand extends HystrixCommand<Week> {
                 }
             }
         } finally {
+            LOG.debug("Return Jedis Resource: " + key);
             pool.returnResource(jedis);
         }
 
