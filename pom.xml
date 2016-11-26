@@ -19,7 +19,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dropwizard.version>1.0.0</dropwizard.version>
+        <dropwizard.version>1.0.3</dropwizard.version>
         <mainClass>org.gpc4j.ncaaf.FootballApplication</mainClass>
     </properties>
 
@@ -53,17 +53,16 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-views-freemarker</artifactId>
         </dependency>
+         <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
+            <version>1.0.0-1</version>
+        </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.6.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.swagger/swagger-jersey2-jaxrs -->
-          <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jersey2-jaxrs</artifactId>
-            <version>1.5.10</version>
-        </dependency>        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
