@@ -10,7 +10,7 @@ swagger:
   resourcePackage: org.gpc4j.ncaaf.resources
   title: NCAAF Graphical History
   description: NCAAF AP Graphical History
-
+  uriPrefix: /ncaaf
 
 server:
   applicationConnectors:
