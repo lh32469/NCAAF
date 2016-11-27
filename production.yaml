@@ -4,6 +4,14 @@ redisPort: 6388
 redisPass: welcome1
 basePath: "/ncaaf"
 
+# the only required property is resourcePackage, for more config options see below
+# resourcePackage is comma delimited list of packages
+swagger:
+  resourcePackage: org.gpc4j.ncaaf.resources
+  title: NCAAF Graphical History
+  description: NCAAF AP Graphical History
+
+
 server:
   applicationConnectors:
   - type: http 
