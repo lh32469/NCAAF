@@ -1,6 +1,8 @@
 package org.gpc4j.ncaaf;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.log4j.Logger;
@@ -12,6 +14,9 @@ import org.hibernate.validator.constraints.NotEmpty;
  * @author Lyle T Harris
  */
 public class FootballConfiguration extends Configuration {
+
+    @JsonProperty("swagger")
+    public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
     @NotEmpty
     private String version;

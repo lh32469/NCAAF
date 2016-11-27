@@ -16,6 +16,8 @@ import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.dropwizard.assets.AssetsBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import java.util.HashMap;
@@ -45,8 +47,21 @@ public class FootballApplication extends Application<FootballConfiguration> {
         bootstrap.getObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         bootstrap.addBundle(HystrixBundle.withDefaultSettings());
         bootstrap.addBundle(new ViewBundle());
-        bootstrap.addBundle(new AssetsBundle("/swagger", "/swagger", "index.html", "swagger"));
-        bootstrap.addBundle(new AssetsBundle("/images", "/images", "/", "images"));
+        // bootstrap.addBundle(new AssetsBundle("/swagger", "/swagger",
+        //          "index.html", "swagger"));
+        bootstrap.addBundle(new AssetsBundle("/images", "/images",
+                "/", "images"));
+
+        // Swagger
+        bootstrap.addBundle(new SwaggerBundle<FootballConfiguration>() {
+            @Override
+            protected SwaggerBundleConfiguration
+                    getSwaggerBundleConfiguration(FootballConfiguration cfg) {
+                return cfg.swaggerBundleConfiguration;
+            }
+
+
+        });
     }
 
 
