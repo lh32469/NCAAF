@@ -220,6 +220,7 @@ public class GamesResource {
     }
 
 
+    // <editor-fold defaultstate="collapsed" desc="Annotations">
     @ApiOperation(
             value = "Get the 'best' game for the team provided",
             notes = "Best game is currently defined as the game won "
@@ -233,6 +234,7 @@ public class GamesResource {
     @Path("best/{team}")
     @Produces({MediaType.APPLICATION_JSON + ";qs=1",
         MediaType.APPLICATION_XML + ";qs=0.5"})
+    // </editor-fold>
     public Response best(
             @ApiParam(name = "team")
             @PathParam("team") String team) {
