@@ -17,7 +17,6 @@ public interface HystrixProperties {
     HystrixThreadPoolProperties.Setter REDIS_THREAD_PROPERTIES
             = HystrixThreadPoolProperties.Setter()
             .withQueueSizeRejectionThreshold(10000)
-            .withCoreSize(50)
             .withMaxQueueSize(1000);
 
 }

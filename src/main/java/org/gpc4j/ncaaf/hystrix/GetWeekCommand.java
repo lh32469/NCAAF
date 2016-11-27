@@ -3,14 +3,8 @@ package org.gpc4j.ncaaf.hystrix;
 import com.codahale.metrics.annotation.Timed;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.HystrixThreadPoolProperties;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.gpc4j.ncaaf.TeamProvider;
 import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_COMMAND_PROPS;
-import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_GROUP_KEY;
 import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_THREAD_PROPERTIES;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.gpc4j.ncaaf.jaxb.Week;
@@ -25,11 +19,9 @@ import redis.clients.jedis.JedisPool;
  */
 public class GetWeekCommand extends HystrixCommand<Week> {
 
-    /**
-     * Default, not found image.
-     */
-    private String image = "http://www.marook-online.de/tp-images/"
-            + "1uid106189-3d-glossy-orange-orb-icon-signs-no-walking1.png";
+    private static final HystrixCommandGroupKey GROUP_KEY
+            = HystrixCommandGroupKey.Factory
+            .asKey(GetWeekCommand.class.getSimpleName());
 
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GetWeekCommand.class);
@@ -43,7 +35,7 @@ public class GetWeekCommand extends HystrixCommand<Week> {
 
     public GetWeekCommand(String key, JedisPool pool, TeamProvider tp) {
         super(Setter
-                .withGroupKey(REDIS_GROUP_KEY)
+                .withGroupKey(GROUP_KEY)
                 .andThreadPoolPropertiesDefaults(REDIS_THREAD_PROPERTIES)
                 .andCommandPropertiesDefaults(REDIS_COMMAND_PROPS));
         this.key = key;

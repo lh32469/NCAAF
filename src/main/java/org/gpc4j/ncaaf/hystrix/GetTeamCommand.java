@@ -1,9 +1,9 @@
 package org.gpc4j.ncaaf.hystrix;
 
 import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
 import java.util.Map;
 import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_COMMAND_PROPS;
-import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_GROUP_KEY;
 import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_THREAD_PROPERTIES;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,10 @@ public class GetTeamCommand extends HystrixCommand<Team> {
     private final String name;
 
     private final Jedis jedis;
+
+    private static final HystrixCommandGroupKey GROUP_KEY
+            = HystrixCommandGroupKey.Factory
+            .asKey(GetTeamCommand.class.getSimpleName());
 
     /**
      * Default, not found image.
@@ -38,7 +42,7 @@ public class GetTeamCommand extends HystrixCommand<Team> {
      */
     public GetTeamCommand(String name, Jedis jedis) {
         super(Setter
-                .withGroupKey(REDIS_GROUP_KEY)
+                .withGroupKey(GetTeamCommand.GROUP_KEY)
                 .andThreadPoolPropertiesDefaults(REDIS_THREAD_PROPERTIES)
                 .andCommandPropertiesDefaults(REDIS_COMMAND_PROPS));
         LOG.debug(name);
