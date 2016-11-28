@@ -16,7 +16,7 @@
             }
            
         </script>
-        <svg width="3500" height="2050">
+        <svg width="4000" height="2050">
             <#list weeks as week>
                 <text x="${week.XPos?c}" 
                       y="25" fill="black">Week ${week.number} [${week.volatility}]
