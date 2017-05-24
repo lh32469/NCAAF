@@ -45,6 +45,7 @@ public class XGame extends Game {
         setVisitorScore(g.getVisitorScore());
         setDate(g.getDate());
         setId(g.getId());
+        setKey(g.getKey());
     }
 
 

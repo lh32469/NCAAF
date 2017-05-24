@@ -179,6 +179,9 @@ public class BracketsResource {
                 result = team1.getLosses() - team2.getConfLosses();
             }
             if (result == 0) {
+                // Same amount of wins and losses, see if team1 beat team2
+            }
+            if (result == 0) {
                 // Same amount of conf wins and losses, compare all wins
                 result = team2.getWins() - team1.getWins();
             }

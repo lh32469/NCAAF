@@ -55,6 +55,7 @@ public class GetGameCommand extends HystrixCommand<Game> {
         try {
             XGame game = new XGame(jedis.hgetAll(key));
             game.setId(key.replaceAll("game.2016.", ""));
+            game.setKey(key);
             return game;
         } finally {
             pool.returnResource(jedis);

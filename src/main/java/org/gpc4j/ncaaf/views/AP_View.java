@@ -54,6 +54,8 @@ public class AP_View extends View {
      */
     private static final Map<String, String> SUBS = new HashMap<>();
 
+    static final List<Game> badGames = new LinkedList<>();
+
 
     static {
 
@@ -63,6 +65,7 @@ public class AP_View extends View {
         for (int i = 0; i < 20; i++) {
             date = date.plusDays(7);
             SATURDAYS.add(date);
+            LOG.warn("Week: " + i + " = " + date);
         }
 
         // Should be moved to Redis at some point.
@@ -89,6 +92,14 @@ public class AP_View extends View {
 
     public List<Week> getWeeks() {
         LOG.debug(weeks.size() + "");
+        gp.getGames().forEach(g -> {
+            if (g.getDate() == null) {
+
+                LOG.warn(g.getKey() + ", "
+                        + g.getHome() + " vs " + g.getVisitor());
+
+            }
+        });
         return weeks;
     }
 
@@ -181,10 +192,12 @@ public class AP_View extends View {
         LocalDateTime gDay = SATURDAYS.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
-        List<Game> games = gp.byTeam(team.getName()).filter(g -> {
-            LocalDateTime gDate = LocalDateTime.parse(g.getDate());
-            return gDate.isBefore(gDay.minusDays(3));
-        }).collect(Collectors.toList());
+        List<Game> games = gp.byTeam(team.getName())
+                .filter(g -> g.getDate() != null)
+                .filter(g -> {
+                    LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+                    return gDate.isBefore(gDay.minusDays(3));
+                }).collect(Collectors.toList());
 
         long wins = games
                 .stream()
@@ -230,11 +243,13 @@ public class AP_View extends View {
             team.setName(subs);
         }
 
-        Optional<Game> game = gp.byTeam(team.getName()).filter(g -> {
-            LocalDateTime gDate = LocalDateTime.parse(g.getDate());
-            return gDay.plusDays(4).isAfter(gDate)
+        Optional<Game> game = gp.byTeam(team.getName())
+                .filter(g -> g.getDate() != null)
+                .filter(g -> {
+                    LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+                    return gDay.plusDays(4).isAfter(gDate)
                     && gDay.minusDays(4).isBefore(gDate);
-        }).findFirst();
+                }).findFirst();
 
         if (!game.isPresent()) {
             LOG.debug("No Game Week " + week + " for " + team.getName());
