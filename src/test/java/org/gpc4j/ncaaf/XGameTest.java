@@ -43,7 +43,7 @@ public class XGameTest {
     public void finalScoresNonRanked() {
         String entry = "1=Hawaii 31   ^California 51 (FINAL)&ncf_s_right1_count=0&ncf_s_url1=http://espn.go.com/ncf/boxscore?gameId=400869090&";
 
-        XGame game = new XGame(entry);
+        XGame game = new XGame(entry, 2016);
         assertEquals("GameId: ", "400869090", game.getId());
         assertEquals("VisitorRank: ", "", game.getVisitorRank());
         assertEquals("Visitor: ", "Hawaii", game.getVisitor());
@@ -59,7 +59,7 @@ public class XGameTest {
     public void scheduledNonRanked() {
         String entry = "3=Presbyterian College at Central Michigan (THU, SEP 1 7:00 PM ET)&ncf_s_right3_count=0&ncf_s_url3=http://espn.go.com/ncf/preview?gameId=400869257&";
 
-        XGame game = new XGame(entry);
+        XGame game = new XGame(entry, 2016);
 
         assertEquals("400869257", game.getId());
         assertEquals("", game.getVisitorRank());
@@ -76,7 +76,7 @@ public class XGameTest {
     @Test
     public void scheduledTwoRankedTeams() {
         String entry = "30=(3) Oklahoma at (13) Houston (SAT, SEP 3 12:00 PM ET)&ncf_s_right30_count=0&ncf_s_url30=http://espn.go.com/ncf/preview?gameId=400869507&";
-        XGame game = new XGame(entry);
+        XGame game = new XGame(entry, 2016);
 
         assertEquals("400869507", game.getId());
         assertEquals("3", game.getVisitorRank());
@@ -93,7 +93,7 @@ public class XGameTest {
     @Test
     public void visitorWinnerNonRanked() {
         String entry = "9=^Indiana 34   Florida Intl 13 (FINAL)&ncf_s_right9_count=0&ncf_s_url9=http://espn.go.com/ncf/boxscore?gameId=400869342&";
-        XGame game = new XGame(entry);
+        XGame game = new XGame(entry, 2016);
         assertEquals("GameId: ", "400869342", game.getId());
         assertEquals("VisitorRank: ", "", game.getVisitorRank());
         assertEquals("Visitor: ", "Indiana", game.getVisitor());
@@ -108,7 +108,7 @@ public class XGameTest {
     @Test
     public void miamiOfOhioFinal() {
         String entry = "46=Miami (OH) 21   ^(15) Iowa 45 (FINAL)&ncf_s_right46_count=0&ncf_s_url46=http://espn.go.com/ncf/boxscore?gameId=400869262&";
-        XGame game = new XGame(entry);
+        XGame game = new XGame(entry, 2016);
         assertEquals("GameId: ", "400869262", game.getId());
         assertEquals("VisitorRank: ", "", game.getVisitorRank());
         assertEquals("Visitor: ", "Miami (OH)", game.getVisitor());
@@ -123,7 +123,7 @@ public class XGameTest {
     @Test
     public void miamiOfOhioScheduledAtHome() {
         String entry = "32=Eastern Illinois at Miami (OH) (SAT, SEP 10 3:30 PM ET)&ncf_s_right32_count=0&ncf_s_url32=http://espn.go.com/ncf/preview?gameId=400869271&";
-        XGame game = new XGame(entry);
+        XGame game = new XGame(entry, 2016);
         assertEquals("GameId: ", "400869271", game.getId());
         assertEquals("VisitorRank: ", "", game.getVisitorRank());
         assertEquals("Visitor: ", "Eastern Illinois", game.getVisitor());

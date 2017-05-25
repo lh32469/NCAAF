@@ -35,6 +35,8 @@ public class XGame extends Game {
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(XGame.class);
 
+    private int year;
+
 
     public XGame(Game g) {
         setHome(g.getHome());
@@ -50,7 +52,13 @@ public class XGame extends Game {
 
 
     public XGame(String entry) {
+        this(entry,  Calendar.getInstance().get(Calendar.YEAR));
+    }
+
+
+    public XGame(String entry, int year) {
         this.entry = entry;
+        this.year = year;
         setId(getGameId(entry));
 
         Scanner s1 = new Scanner(entry).useDelimiter("&ncf");
@@ -353,7 +361,7 @@ public class XGame extends Game {
         text = text.replaceAll("NOV", "Nov");
         text = text.replaceAll("DEC", "Dec");
 
-        text += " " + Calendar.getInstance().get(Calendar.YEAR);
+        text += " " + year;
 
         String result = null;
         try {
