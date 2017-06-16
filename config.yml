@@ -3,6 +3,12 @@ redisHost: "macmini.local"
 redisPort: 6388
 redisPass: welcome1
 
+swagger:
+  resourcePackage: org.gpc4j.ncaaf.resources
+  title: NCAAF Graphical History
+  description: NCAAF AP Graphical History
+  uriPrefix: /ncaaf
+
 logging:
   level: INFO
   loggers:
