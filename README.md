@@ -8,6 +8,9 @@ Swagger UI at:
 
    http://www.gpc4j.org/ncaaf/swagger
 
+JAX-RS WADL at:
+
+   http://www.gpc4j.org/ncaaf/application.wadl
 
 How to start the DropWizard application
 ---
