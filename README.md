@@ -15,7 +15,7 @@ JAX-RS WADL at:
 How to start the DropWizard application
 ---
 
-$ mvn clean
-$ mvn package -DskipTests -Djavax.xml.accessExternalSchema=all
-$ java -jar target/ncaaf-1.0-SNAPSHOT.jar server config.yml
+1. $ mvn clean
+1. $ mvn package -DskipTests -Djavax.xml.accessExternalSchema=all
+1. $ java -jar target/ncaaf-1.0-SNAPSHOT.jar server config.yml
 
