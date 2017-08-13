@@ -72,7 +72,7 @@ public class AP {
         //LOG.debug("This: " + this);
         //LOG.debug("Pool: " + pool);
 
-        AP_View view = new AP_View();
+        AP_View view = new AP_View(year);
         view.setTitle(year + " AP Rankings");
         view.setWeeks(getWeeks(year).collect(Collectors.toList()));
         view.setTp(tp);

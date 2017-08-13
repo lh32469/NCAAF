@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
@@ -47,7 +48,7 @@ public class AP_View extends View {
 
     private GamesProvider gp;
 
-    private static final List<LocalDateTime> SATURDAYS = new LinkedList<>();
+    private final List<LocalDateTime> saturdays = new LinkedList<>();
 
     /**
      * Other names used by ESPN for the same Team.
@@ -59,15 +60,6 @@ public class AP_View extends View {
 
     static {
 
-        LocalDateTime date = LocalDateTime.parse("2016-09-03T20:00");
-        SATURDAYS.add(date);
-
-        for (int i = 0; i < 20; i++) {
-            date = date.plusDays(7);
-            SATURDAYS.add(date);
-            LOG.warn("Week: " + i + " = " + date);
-        }
-
         // Should be moved to Redis at some point.
         SUBS.put("Mississippi", "Ole Miss");
         SUBS.put("Miami (FL)", "Miami");
@@ -75,8 +67,17 @@ public class AP_View extends View {
     }
 
 
-    public AP_View() {
+    public AP_View(int year) {
         super("ap.ftl");
+
+        LocalDateTime date = LocalDateTime.parse(year + "-09-03T20:00");
+        saturdays.add(date);
+
+        for (int i = 0; i < 20; i++) {
+            date = date.plusDays(7);
+            saturdays.add(date);
+            LOG.info("Week: " + i + " = " + date);
+        }
     }
 
 
@@ -92,14 +93,14 @@ public class AP_View extends View {
 
     public List<Week> getWeeks() {
         LOG.debug(weeks.size() + "");
-        gp.getGames().forEach(g -> {
-            if (g.getDate() == null) {
-
-                LOG.warn(g.getKey() + ", "
-                        + g.getHome() + " vs " + g.getVisitor());
-
-            }
-        });
+        if (LOG.isTraceEnabled()) {
+            gp.getGames().forEach(g -> {
+                if (g.getDate() == null) {
+                    LOG.trace("No date set: " + g.getKey() + ", "
+                            + g.getHome() + " vs " + g.getVisitor());
+                }
+            });
+        }
         return weeks;
     }
 
@@ -189,7 +190,7 @@ public class AP_View extends View {
 
     public String getRecord(int week, Team team) {
 
-        LocalDateTime gDay = SATURDAYS.get(week);
+        LocalDateTime gDay = saturdays.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
         List<Game> games = gp.byTeam(team.getName())
@@ -234,7 +235,7 @@ public class AP_View extends View {
 
 
     public Game getGame(int week, Team team) {
-        LocalDateTime gDay = SATURDAYS.get(week);
+        LocalDateTime gDay = saturdays.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
         String subs = SUBS.get(team.getName().trim());
