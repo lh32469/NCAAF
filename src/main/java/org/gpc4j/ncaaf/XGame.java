@@ -115,7 +115,7 @@ public class XGame extends Game {
 
 
     public void saveGame(Jedis jedis) {
-        final String key = "game.2016." + getId();
+        final String key = "game." + year + "." + getId();
         safeSet(jedis, key, "home", getHome());
         safeSet(jedis, key, "homeRank", getHomeRank());
         safeSet(jedis, key, "homeScore", getHomeScore());
