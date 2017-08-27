@@ -125,11 +125,19 @@ public class GamesProvider {
     }
 
 
+    public Game lastGameOfYear(String teamName, Integer year) {
+        LOG.info("Team: " + teamName + ", Year: " + year);
+        Game g = byTeamAndYear(teamName, year)
+                .reduce((first, second) -> second).get();
+        LOG.info("Game: " + g);
+        return g;
+    }
+
+
     public Stream<Game> byTeamAndYear(String teamName, Integer year) {
 
         // Don't use other methods to avoid needlessly creating Game clones
         // only to then filter them out.
-        
         return games.parallelStream()
                 .filter(team(teamName))
                 .filter(played(year))

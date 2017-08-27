@@ -10,10 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
+import org.gpc4j.ncaaf.XGame;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Path;
 import org.gpc4j.ncaaf.jaxb.Team;
@@ -48,6 +48,8 @@ public class AP_View extends View {
 
     private GamesProvider gp;
 
+    private final int year;
+
     private final List<LocalDateTime> saturdays = new LinkedList<>();
 
     /**
@@ -69,6 +71,7 @@ public class AP_View extends View {
 
     public AP_View(int year) {
         super("ap.ftl");
+        this.year = year;
 
         LocalDateTime date = LocalDateTime.parse(year + "-09-03T20:00");
         saturdays.add(date);
@@ -76,7 +79,7 @@ public class AP_View extends View {
         for (int i = 0; i < 20; i++) {
             date = date.plusDays(7);
             saturdays.add(date);
-            LOG.info("Week: " + i + " = " + date);
+            LOG.debug("Week: " + i + " = " + date);
         }
     }
 
@@ -236,7 +239,7 @@ public class AP_View extends View {
 
     public Game getGame(int week, Team team) {
         LocalDateTime gDay = saturdays.get(week);
-        LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
+        LOG.info(week + ": " + team.getName() + ", GameDay: " + gDay);
 
         String subs = SUBS.get(team.getName().trim());
 
@@ -251,6 +254,15 @@ public class AP_View extends View {
                     return gDay.plusDays(4).isAfter(gDate)
                     && gDay.minusDays(4).isBefore(gDate);
                 }).findFirst();
+
+        if (!game.isPresent() && week == 14) {
+            // Post Season Bowl Games
+            Game lastGame =  gp.lastGameOfYear(team.getName(), year);
+            Game game13 =  getGame(13, team);
+            if (!lastGame.equals(game13)) {
+                return gp.lastGameOfYear(team.getName(), year);
+            }
+        }
 
         if (!game.isPresent()) {
             LOG.debug("No Game Week " + week + " for " + team.getName());
