@@ -126,10 +126,10 @@ public class GamesProvider {
 
 
     public Game lastGameOfYear(String teamName, Integer year) {
-        LOG.info("Team: " + teamName + ", Year: " + year);
+        LOG.debug("Team: " + teamName + ", Year: " + year);
         Game g = byTeamAndYear(teamName, year)
                 .reduce((first, second) -> second).get();
-        LOG.info("Game: " + g);
+        LOG.debug("Game: " + g);
         return g;
     }
 

@@ -239,7 +239,7 @@ public class AP_View extends View {
 
     public Game getGame(int week, Team team) {
         LocalDateTime gDay = saturdays.get(week);
-        LOG.info(week + ": " + team.getName() + ", GameDay: " + gDay);
+        LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
 
         String subs = SUBS.get(team.getName().trim());
 
@@ -262,7 +262,7 @@ public class AP_View extends View {
             Game game12 = getGame(12, team); // For SEC Teams
             if (!lastGame.equals(game13)
                     && !lastGame.equals(game12)) {
-                return gp.lastGameOfYear(team.getName(), year);
+                return lastGame;
             }
         }
 
