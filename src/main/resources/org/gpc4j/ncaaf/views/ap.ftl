@@ -38,14 +38,16 @@
                            xlink:href="${team.image}" >
                         <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
-                    <image x="${(team.CX+100)?c}" 
-                           y="${(team.CY+20)?c}"
-                           width="40"
-                           height="40"                          
-                           onclick="alert('${team.name}')"
-                           xlink:href="${opponent.image}" >
-                        <title role="tooltip">${result}</title>
-                    </image>
+                    <#if week.number < 15>
+                        <image x="${(team.CX+100)?c}"
+                               y="${(team.CY+20)?c}"
+                               width="40"
+                               height="40"
+                               onclick="alert('${team.name}')"
+                               xlink:href="${opponent.image}" >
+                            <title role="tooltip">${result}</title>
+                        </image>
+                    </#if>
                     <#assign place = place + 1>
                 </#list>
                     
