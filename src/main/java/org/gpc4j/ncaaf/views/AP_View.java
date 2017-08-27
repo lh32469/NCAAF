@@ -257,9 +257,11 @@ public class AP_View extends View {
 
         if (!game.isPresent() && week == 14) {
             // Post Season Bowl Games
-            Game lastGame =  gp.lastGameOfYear(team.getName(), year);
-            Game game13 =  getGame(13, team);
-            if (!lastGame.equals(game13)) {
+            Game lastGame = gp.lastGameOfYear(team.getName(), year);
+            Game game13 = getGame(13, team);
+            Game game12 = getGame(12, team); // For SEC Teams
+            if (!lastGame.equals(game13)
+                    && !lastGame.equals(game12)) {
                 return gp.lastGameOfYear(team.getName(), year);
             }
         }
