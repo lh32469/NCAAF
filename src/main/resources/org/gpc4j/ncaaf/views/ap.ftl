@@ -18,12 +18,23 @@
         </script>
         <svg width="4500" height="2050">
             <#list weeks as week>
-                <text x="${week.XPos?c}" 
-                      y="25" fill="black">Week ${week.number} [${week.volatility}]
-                    <title role="tooltip">[volatility score] Indication of the amount of position changes from prior week
-                    </title>
-                </text>
-             
+                <#if week.number = 13>
+                    <text x="${(week.XPos-10)?c}" y="25" fill="black">Conf Championships
+                    </text>
+                <#elseIf week.number = 14>
+                    <text x="${week.XPos?c}" y="25" fill="black">Bowl Games
+                    </text>
+                <#elseIf week.number = 15>
+                    <text x="${(week.XPos-10)?c}" y="25" fill="black">Final Results
+                    </text>
+                <#else>
+                    <text x="${week.XPos?c}" 
+                          y="25" fill="black">Week ${week.number} [${week.volatility}]
+                        <title role="tooltip">[volatility score] Indication of the amount of position changes from prior week
+                        </title>
+                    </text>
+                </#if>
+                
                 <#assign place = 1>
                 <#list week.teams as team>
                     <#assign record = getRecord(week.number,team) />
