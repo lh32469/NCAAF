@@ -247,7 +247,7 @@ public class AP_View extends View {
             team.setName(subs);
         }
 
-        Optional<Game> game = gp.byTeam(team.getName())
+        Optional<Game> game = gp.byTeamAndYear(team.getName(),year)
                 .filter(g -> g.getDate() != null)
                 .filter(g -> {
                     LocalDateTime gDate = LocalDateTime.parse(g.getDate());
