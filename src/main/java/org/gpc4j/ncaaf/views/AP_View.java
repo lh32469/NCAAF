@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
-import org.gpc4j.ncaaf.XGame;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Path;
 import org.gpc4j.ncaaf.jaxb.Team;
@@ -193,19 +192,21 @@ public class AP_View extends View {
 
     public String getRecord(int week, Team team) {
 
-        LocalDateTime gDay = saturdays.get(week);
-        LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
+        final String teamName = team.getName().trim();
 
-        List<Game> games = gp.byTeam(team.getName())
-                .filter(g -> g.getDate() != null)
+        LocalDateTime gDay = saturdays.get(week);
+        LOG.debug(week + ": " + teamName + ", GameDay: " + gDay);
+
+        List<Game> games = gp.gamesPlayed(teamName, year)
                 .filter(g -> {
                     LocalDateTime gDate = LocalDateTime.parse(g.getDate());
                     return gDate.isBefore(gDay.minusDays(3));
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
 
         long wins = games
                 .stream()
-                .filter(GamesResource.win(team.getName()))
+                .filter(GamesResource.win(teamName))
                 .count();
 
         return wins + " - " + (games.size() - wins);
@@ -247,7 +248,7 @@ public class AP_View extends View {
             team.setName(subs);
         }
 
-        Optional<Game> game = gp.byTeamAndYear(team.getName(),year)
+        Optional<Game> game = gp.byTeamAndYear(team.getName(), year)
                 .filter(g -> g.getDate() != null)
                 .filter(g -> {
                     LocalDateTime gDate = LocalDateTime.parse(g.getDate());
