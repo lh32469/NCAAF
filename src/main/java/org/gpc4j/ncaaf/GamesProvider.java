@@ -3,11 +3,11 @@ package org.gpc4j.ncaaf;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.gpc4j.ncaaf.hystrix.GetGameCommand;
 import org.gpc4j.ncaaf.jaxb.Game;
@@ -32,6 +32,16 @@ public class GamesProvider {
         return g -> !Strings.isNullOrEmpty(g.getHomeScore())
                 && !Strings.isNullOrEmpty(g.getDate())
                 && g.getDate().contains(year.toString());
+    }
+
+
+    /**
+     * Check if Game was scheduled in the year provided.
+     *
+     * @param year
+     */
+    private static Predicate<Game> scheduled(Integer year) {
+        return g -> g.getDate().contains(year.toString());
     }
 
 
@@ -62,6 +72,11 @@ public class GamesProvider {
         };
     }
 
+
+    /**
+     * Make copy of original Game as XGame.
+     */
+    private static final Function<Game, Game> clone = g -> (Game) new XGame(g);
 
     private final JedisPool pool;
 
@@ -102,7 +117,7 @@ public class GamesProvider {
     public Stream<Game> getGames() {
 
         return games.parallelStream()
-                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .map(clone) // Need to return clone of games
                 .peek(anonymizeId());
     }
 
@@ -111,7 +126,7 @@ public class GamesProvider {
 
         return games.parallelStream()
                 .filter(played(year))
-                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .map(clone) // Need to return clone of games
                 .peek(anonymizeId());
     }
 
@@ -120,7 +135,7 @@ public class GamesProvider {
 
         return games.parallelStream()
                 .filter(team(teamName))
-                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .map(clone) // Need to return clone of games
                 .peek(anonymizeId());
     }
 
@@ -140,9 +155,21 @@ public class GamesProvider {
         // only to then filter them out.
         return games.parallelStream()
                 .filter(team(teamName))
-                .filter(played(year))
-                .map(g -> (Game) new XGame(g)) // Need to return clone of games
+                .filter(scheduled(year))
+                .map(clone) // Need to return clone of games
+                //.peek(g -> LOG.info(g.toString()))
                 .peek(anonymizeId());
+    }
+
+
+    public Optional<Game> getNextGame(String teamName, int year) {
+
+        return games.stream()
+                .filter(team(teamName))
+                .filter(played(year).negate()) // Hasn't been played
+                .map(clone) // Need to return clone of game
+                .peek(anonymizeId())
+                .findFirst();
     }
 
 
