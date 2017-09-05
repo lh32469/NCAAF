@@ -41,7 +41,8 @@ public class GamesProvider {
      * @param year
      */
     private static Predicate<Game> scheduled(Integer year) {
-        return g -> g.getDate().contains(year.toString());
+        return g -> !Strings.isNullOrEmpty(g.getDate())
+                && g.getDate().contains(year.toString());
     }
 
 
