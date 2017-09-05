@@ -163,6 +163,21 @@ public class GamesProvider {
     }
 
 
+    /**
+     * Get all the completed games for the named Team in the year provided.
+     */
+    public Stream<Game> gamesPlayed(String teamName, Integer year) {
+
+        // Don't use other methods to avoid needlessly creating Game clones
+        // only to then filter them out.
+        return games.parallelStream()
+                .filter(team(teamName))
+                .filter(played(year))
+                .map(clone) // Need to return clone of games
+                .peek(anonymizeId());
+    }
+
+
     public Optional<Game> getNextGame(String teamName, int year) {
 
         return games.stream()
