@@ -18,6 +18,6 @@ How to start the DropWizard application
 ---
 
 1. $ mvn clean
-1. $ mvn package -DskipTests -Djavax.xml.accessExternalSchema=all
+1. $ mvn package -Djavax.xml.accessExternalSchema=all
 1. $ java -jar target/ncaaf-1.0-SNAPSHOT.jar server config.yml
 
