@@ -60,7 +60,7 @@
                            xlink:href="${team.image}" >
                         <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
-                    <#if week.number < 15>
+                    <#if week.number < 15 && newGamesPosted(week.number) >
                         <image x="${(team.CX+100)?c}"
                                y="${(team.CY+20)?c}"
                                width="40"

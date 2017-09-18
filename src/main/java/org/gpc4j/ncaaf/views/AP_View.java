@@ -238,6 +238,27 @@ public class AP_View extends View {
     }
 
 
+    /**
+     * See if new games have been loaded in to DB for current week.
+     *
+     * @param week
+     * @return
+     */
+    public boolean newGamesPosted(int week) {
+
+        LocalDateTime gDay = saturdays.get(week);
+
+        long games = gp.byYear(year)
+                .filter(g -> {
+                    LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+                    return gDay.plusDays(4).isAfter(gDate)
+                            && gDay.minusDays(4).isBefore(gDate);
+                }).count();
+
+        return games > 10;
+    }
+
+
     public Game getGame(int week, Team team) {
         LocalDateTime gDay = saturdays.get(week);
         LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
@@ -253,7 +274,7 @@ public class AP_View extends View {
                 .filter(g -> {
                     LocalDateTime gDate = LocalDateTime.parse(g.getDate());
                     return gDay.plusDays(4).isAfter(gDate)
-                    && gDay.minusDays(4).isBefore(gDate);
+                            && gDay.minusDays(4).isBefore(gDate);
                 }).findFirst();
 
         if (!game.isPresent() && week == 14) {
