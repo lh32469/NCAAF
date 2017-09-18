@@ -60,7 +60,16 @@
                            xlink:href="${team.image}" >
                         <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
-                    <#if week.number < 15 && newGamesPosted(week.number) >
+                    <#if week.number < 14 && newGamesPosted(week.number) >
+                        <image x="${(team.CX+100)?c}"
+                               y="${(team.CY+20)?c}"
+                               width="40"
+                               height="40"
+                               onclick="alert('${team.name}')"
+                               xlink:href="${opponent.image}" >
+                            <title role="tooltip">${result}</title>
+                        </image>
+                    <#elseIf week.number == 14 >
                         <image x="${(team.CX+100)?c}"
                                y="${(team.CY+20)?c}"
                                width="40"
