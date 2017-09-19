@@ -123,10 +123,25 @@ public class GamesProvider {
     }
 
 
-    public Stream<Game> byYear(Integer year) {
+    /**
+     * Get all completed games for the year.
+     */
+    public Stream<Game> playedByYear(Integer year) {
 
         return games.parallelStream()
                 .filter(played(year))
+                .map(clone) // Need to return clone of games
+                .peek(anonymizeId());
+    }
+
+
+    /**
+     * Get all games for the year whether they've been played or not.
+     */
+    public Stream<Game> byYear(Integer year) {
+
+        return games.parallelStream()
+                .filter(scheduled(year))
                 .map(clone) // Need to return clone of games
                 .peek(anonymizeId());
     }

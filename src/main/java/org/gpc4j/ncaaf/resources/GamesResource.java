@@ -167,8 +167,7 @@ public class GamesResource {
     @Path("year/{year}")
     public Games getAllGamesPlayedForYear(@PathParam("year") Integer year) {
 
-        final List<Game> games = gp.byYear(year)
-                .filter(finished())
+        final List<Game> games = gp.playedByYear(year)
                 .collect(Collectors.toList());
 
         Games g = new Games();
