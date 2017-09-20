@@ -3,6 +3,9 @@ package org.gpc4j.ncaaf.views;
 import com.google.common.base.Strings;
 import io.dropwizard.views.View;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,6 +60,11 @@ public class AP_View extends View {
     private static final Map<String, String> SUBS = new HashMap<>();
 
     static final List<Game> badGames = new LinkedList<>();
+
+    private static final ZoneId EST = ZoneId.of("US/Eastern");
+
+    private static final DateTimeFormatter DTF
+            = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
 
 
     static {
@@ -312,6 +320,7 @@ public class AP_View extends View {
         StringBuilder sb = new StringBuilder();
         Game g = getGame(week, team);
 
+        sb.append("<div>");
         sb.append(g.getHome());
 
         if (!Strings.isNullOrEmpty(g.getHomeScore())) {
@@ -329,6 +338,13 @@ public class AP_View extends View {
             sb.append(g.getVisitorScore());
             sb.append(")");
         }
+
+        if (g.getDate() != null) {
+            sb.append("<br/>");
+            LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+            sb.append(gDate.atZone(EST).format(DTF));
+        }
+        sb.append("</div>");
 
         return sb.toString();
     }
