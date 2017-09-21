@@ -64,7 +64,7 @@ public class AP_View extends View {
     private static final ZoneId EST = ZoneId.of("US/Eastern");
 
     private static final DateTimeFormatter DTF
-            = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+            = DateTimeFormatter.ofPattern("MMMM dd, hh:mm a z");
 
 
     static {
@@ -321,21 +321,21 @@ public class AP_View extends View {
         Game g = getGame(week, team);
 
         sb.append("<div>");
-        sb.append(g.getHome());
-
-        if (!Strings.isNullOrEmpty(g.getHomeScore())) {
-            sb.append(" (");
-            sb.append(g.getHomeScore());
-            sb.append(") / ");
-        } else {
-            sb.append(" / ");
-        }
-
         sb.append(g.getVisitor());
 
         if (!Strings.isNullOrEmpty(g.getVisitorScore())) {
             sb.append(" (");
             sb.append(g.getVisitorScore());
+            sb.append(") @ ");
+        } else {
+            sb.append(" @ ");
+        }
+
+        sb.append(g.getHome());
+
+        if (!Strings.isNullOrEmpty(g.getHomeScore())) {
+            sb.append(" (");
+            sb.append(g.getHomeScore());
             sb.append(")");
         }
 
