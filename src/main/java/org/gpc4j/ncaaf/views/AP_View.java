@@ -61,7 +61,7 @@ public class AP_View extends View {
 
     static final List<Game> badGames = new LinkedList<>();
 
-    private static final ZoneId EST = ZoneId.of("US/Eastern");
+    private static final ZoneId PST = ZoneId.of("US/Pacific");
 
     private static final DateTimeFormatter DTF
             = DateTimeFormatter.ofPattern("MMMM dd, hh:mm a z");
@@ -340,9 +340,9 @@ public class AP_View extends View {
         }
 
         if (g.getDate() != null) {
-            sb.append("<br/>");
             LocalDateTime gDate = LocalDateTime.parse(g.getDate());
-            sb.append(gDate.atZone(EST).format(DTF));
+            sb.append("<br/>");
+            sb.append(gDate.atZone(PST).minusHours(3).format(DTF));
         }
         sb.append("</div>");
 
