@@ -381,7 +381,7 @@ public class XGame extends Game {
         return "Game{" + "visitor=" + visitor + ", visitorRank=" + visitorRank
                 + ", visitorScore=" + visitorScore + ", home=" + home
                 + ", homeRank=" + homeRank + ", homeScore=" + homeScore
-                + ", date=" + date + ", id=" + id + '}';
+                + ", date=" + date + ", id=" + id + ", key=" + key + '}';
     }
 
 

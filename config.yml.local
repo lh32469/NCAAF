@@ -1,0 +1,34 @@
+version: "1.0"
+
+redisHost: "macmini.local"
+redisPort: 6388
+redisPass: welcome1
+
+#redisHost: "localhost"
+#redisPort: 6379
+#redisPass: welcome1
+
+swagger:
+  resourcePackage: org.gpc4j.ncaaf.resources
+  title: NCAAF Graphical History
+  description: NCAAF AP Graphical History
+  uriPrefix: /ncaaf
+
+logging:
+  level: INFO
+  loggers:
+    org.gpc4j.ncaaf.FootballConfiguration: DEBUG
+    org.gpc4j.ncaaf.resources: INFO
+    org.gpc4j.ncaaf.resources.GamesResource: INFO
+    org.gpc4j.ncaaf.resources.AP: INFO
+    org.gpc4j.ncaaf.hystrix: INFO
+    org.gpc4j.ncaaf.views: INFO
+
+  appenders:
+    - type: console
+      threshold: TRACE
+      logFormat: "%d{dd MMM HH:mm:ss} %-5level %C{1} %M %msg%n"
+
+#      logFormat: "%-5level [%date{ISO8601}] [%X{MDC_VAR}] [%thread]: %c:%method:%line- %msg%n"
+#      logFormat: '[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%class{0}:%method:%line] [%thread] [-[%msg]-] %n'
+#      logFormat: "%d{dd MMM HH:mm:ss} %-5level %class{0} %method %msg%n"
