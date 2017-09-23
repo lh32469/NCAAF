@@ -4,8 +4,8 @@ import com.google.common.base.Strings;
 import io.dropwizard.views.View;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,6 +60,8 @@ public class AP_View extends View {
     private static final Map<String, String> SUBS = new HashMap<>();
 
     static final List<Game> badGames = new LinkedList<>();
+
+    private static final ZoneId EST = ZoneId.of("US/Eastern");
 
     private static final ZoneId PST = ZoneId.of("US/Pacific");
 
@@ -326,10 +328,10 @@ public class AP_View extends View {
         if (!Strings.isNullOrEmpty(g.getVisitorScore())) {
             sb.append(" (");
             sb.append(g.getVisitorScore());
-            sb.append(") @ ");
-        } else {
-            sb.append(" @ ");
+            sb.append(")");
         }
+
+        sb.append(" @ ");
 
         sb.append(g.getHome());
 
@@ -340,9 +342,10 @@ public class AP_View extends View {
         }
 
         if (g.getDate() != null) {
-            LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+            ZonedDateTime gameTime
+                    = LocalDateTime.parse(g.getDate()).atZone(EST);
             sb.append("<br/>");
-            sb.append(gDate.atZone(PST).minusHours(3).format(DTF));
+            sb.append(gameTime.withZoneSameInstant(PST).format(DTF));
         }
         sb.append("</div>");
 
