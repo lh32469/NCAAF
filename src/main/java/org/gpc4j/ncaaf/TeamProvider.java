@@ -3,7 +3,6 @@ package org.gpc4j.ncaaf;
 import java.util.HashMap;
 import java.util.Map;
 import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
-import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -20,12 +19,20 @@ public class TeamProvider {
 
     private final Map<String, Team> teams = new HashMap<>();
 
+    /**
+     * Other names used by ESPN for the same Team.
+     */
+    private final Map<String, String> SUBSTITUTES;
+
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(TeamProvider.class);
 
 
     public TeamProvider(JedisPool pool) {
         this.pool = pool;
+        Jedis jedis = pool.getResource();
+        SUBSTITUTES = jedis.hgetAll("SUBSTITUTES");
+        pool.returnResource(jedis);
     }
 
 
@@ -36,6 +43,11 @@ public class TeamProvider {
 
 
     public synchronized Team getTeam(String teamName) {
+
+        if (SUBSTITUTES.keySet().contains(teamName)) {
+            teamName = SUBSTITUTES.get(teamName);
+        }
+
         if (teams.keySet().contains(teamName)) {
             LOG.debug("Hit: " + teamName);
             Team team = teams.get(teamName);
