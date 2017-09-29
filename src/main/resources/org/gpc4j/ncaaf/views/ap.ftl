@@ -28,6 +28,11 @@
         </script>
         
         <svg width="4500" height="2050">
+
+            <#list paths as path>
+                <path d="${path.d}" stroke="${path.stroke}" fill="none" />
+            </#list>
+
             <#list weeks as week>
                 <#if week.number = 13>
                     <text x="${(week.XPos-10)?c}" y="25" fill="black">Conf Championships
@@ -83,11 +88,6 @@
                 </#list>
                     
             </#list>
-                    
-            <#list paths as path>
-                <path d="${path.d}" stroke="${path.stroke}" fill="none" />
-            </#list>
-
         </svg>
     </body>
 
