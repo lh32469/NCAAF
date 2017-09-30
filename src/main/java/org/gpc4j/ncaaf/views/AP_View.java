@@ -353,4 +353,23 @@ public class AP_View extends View {
     }
 
 
+    /**
+     * Format Game result for displaying as alert on game Icon.
+     *
+     * @param week Week number.
+     * @param team One of the teams involved in the Game.
+     * @return
+     */
+    public String getResultAsText(int week, Team team) {
+
+        String result = getResult(week, team);
+        
+        result = result.replaceAll("<div>", "");
+        result = result.replaceAll("</div>", "");
+        result = result.replaceAll("<br/>", "\\\\n");
+
+        return result;
+    }
+
+
 }

@@ -56,6 +56,7 @@
                     <#assign record = getRecord(week.number,team) />
                     <#assign opponent = getOpponent(week.number,team) />
                     <#assign result = getResult(week.number,team) />
+                    <#assign resultAsText = getResultAsText(week.number,team) />
                     <image x="${team.CX?c}" 
                            y="${team.CY?c}"
                            width="70"
@@ -70,7 +71,7 @@
                                y="${(team.CY+20)?c}"
                                width="40"
                                height="40"
-                               onclick="void(0)"
+                               onclick="alert('${resultAsText}')"
                                xlink:href="${opponent.image}" >
                             <title role="tooltip">${result}</title>
                         </image>
@@ -79,7 +80,7 @@
                                y="${(team.CY+20)?c}"
                                width="40"
                                height="40"
-                               onclick="void(0)"
+                               onclick="alert('${resultAsText}')"
                                xlink:href="${opponent.image}" >
                             <title role="tooltip">${result}</title>
                         </image>
