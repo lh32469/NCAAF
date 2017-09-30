@@ -70,6 +70,7 @@
                                y="${(team.CY+20)?c}"
                                width="40"
                                height="40"
+                               onclick="void(0)"
                                xlink:href="${opponent.image}" >
                             <title role="tooltip">${result}</title>
                         </image>
@@ -78,6 +79,7 @@
                                y="${(team.CY+20)?c}"
                                width="40"
                                height="40"
+                               onclick="void(0)"
                                xlink:href="${opponent.image}" >
                             <title role="tooltip">${result}</title>
                         </image>
