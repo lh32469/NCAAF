@@ -21,6 +21,9 @@
             <xs:element name="stroke"
                         maxOccurs="1"
                         type="xs:string"/>
+            <xs:element name="stroke-width"
+                        maxOccurs="1"
+                        type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 
