@@ -52,12 +52,9 @@ public class AP_View extends View {
 
     private final int year;
 
-    private final List<LocalDateTime> saturdays = new LinkedList<>();
+    private final static Game BYE_GAME;
 
-    /**
-     * Other names used by ESPN for the same Team.
-     */
-    private static final Map<String, String> SUBS = new HashMap<>();
+    private final List<LocalDateTime> saturdays = new LinkedList<>();
 
     static final List<Game> badGames = new LinkedList<>();
 
@@ -70,11 +67,9 @@ public class AP_View extends View {
 
 
     static {
-
-        // Should be moved to Redis at some point.
-        SUBS.put("Mississippi", "Ole Miss");
-        SUBS.put("Miami (FL)", "Miami");
-
+        BYE_GAME = new Game();
+        BYE_GAME.setHome("Bye");
+        BYE_GAME.setVisitor("BYE");
     }
 
 
@@ -104,7 +99,7 @@ public class AP_View extends View {
 
 
     public List<Week> getWeeks() {
-        LOG.debug(weeks.size() + "");
+        LOG.info(weeks.size() + "");
         if (LOG.isTraceEnabled()) {
             gp.getGames().forEach(g -> {
                 if (g.getDate() == null) {
@@ -118,6 +113,7 @@ public class AP_View extends View {
 
 
     public List<Path> getPaths() {
+        LOG.info(weeks.size() + "");
 
         final List<Path> paths = new ArrayList<>();
 
@@ -175,12 +171,45 @@ public class AP_View extends View {
                     }
 
                     paths.add(p);
+                    // Default stroke-width
+                    p.setStrokeWidth("1");
+
+                    if (week.getNumber() == 0) {
+                        continue;
+                    }
+
+                    // Get prior week's game to see how big a margin
+                    // it was won/lost by.
+                    Optional<Game> opt
+                            = gp.getGame(team, year, week.getNumber() - 1);
+
+                    if (!opt.isPresent()) {
+                        continue;
+                    }
+
+                    Game g = opt.get();
+
+                    if (g.getHomeScore() != null) {
+                        int homeScore = Integer.parseInt(g.getHomeScore());
+                        int visitorScore = Integer.parseInt(g.getVisitorScore());
+
+                        int diff = Math.abs(homeScore - visitorScore);
+
+                        if (diff > 40) {
+                            p.setStrokeWidth("4");
+                        } else if (diff > 20) {
+                            p.setStrokeWidth("3");
+                        } else if (diff > 10) {
+                            p.setStrokeWidth("2");
+                        }
+                    }
 
                 }
             }
 
             previous = current;
         }
+
         return paths;
     }
 
@@ -225,19 +254,23 @@ public class AP_View extends View {
 
     public Team getOpponent(int week, Team team) {
 
-        Game game = getGame(week, team);
+        Optional<Game> opt = gp.getGame(team, year, week);
 
-        final String home = game.getHome();
-        final String visitor = game.getVisitor();
+        if (opt.isPresent()) {
+            Game game = opt.get();
 
-        if (home.equals(team.getName())) {
-            LOG.debug("Found Home: " + visitor + " @ " + home);
-            //LOG.info(game.toString());
-            return tp.getTeam(visitor);
-        } else if (visitor.equals(team.getName())) {
-            LOG.debug("Found Vistor: " + visitor + " @ " + home);
-            // LOG.info(game.toString());
-            return tp.getTeam(home);
+            final String home = game.getHome();
+            final String visitor = game.getVisitor();
+
+            if (home.equals(team.getName())) {
+                LOG.debug("Found Home: " + visitor + " @ " + home);
+                //LOG.info(game.toString());
+                return tp.getTeam(visitor);
+            } else {
+                LOG.debug("Found Vistor: " + visitor + " @ " + home);
+                // LOG.info(game.toString());
+                return tp.getTeam(home);
+            }
         } else {
             Team t = new Team();
             t.setName("Unknown");
@@ -269,47 +302,6 @@ public class AP_View extends View {
     }
 
 
-    public Game getGame(int week, Team team) {
-        LocalDateTime gDay = saturdays.get(week);
-        LOG.debug(week + ": " + team.getName() + ", GameDay: " + gDay);
-
-        String subs = SUBS.get(team.getName().trim());
-
-        if (subs != null) {
-            team.setName(subs);
-        }
-
-        Optional<Game> game = gp.byTeamAndYear(team.getName(), year)
-                .filter(g -> g.getDate() != null)
-                .filter(g -> {
-                    LocalDateTime gDate = LocalDateTime.parse(g.getDate());
-                    return gDay.plusDays(4).isAfter(gDate)
-                            && gDay.minusDays(4).isBefore(gDate);
-                }).findFirst();
-
-        if (!game.isPresent() && week == 14) {
-            // Post Season Bowl Games
-            Game lastGame = gp.lastGameOfYear(team.getName(), year);
-            Game game13 = getGame(13, team);
-            Game game12 = getGame(12, team); // For SEC Teams
-            if (!lastGame.equals(game13)
-                    && !lastGame.equals(game12)) {
-                return lastGame;
-            }
-        }
-
-        if (!game.isPresent()) {
-            LOG.debug("No Game Week " + week + " for " + team.getName());
-            Game bye = new Game();
-            bye.setHome("Bye");
-            bye.setVisitor("Bye");
-            game = Optional.of(bye);
-        }
-
-        return game.get();
-    }
-
-
     /**
      * Format Game result for displaying as tooltip on game Icon.
      *
@@ -320,7 +312,7 @@ public class AP_View extends View {
     public String getResult(int week, Team team) {
 
         StringBuilder sb = new StringBuilder();
-        Game g = getGame(week, team);
+        Game g = gp.getGame(team, year, week).orElse(BYE_GAME);
 
         sb.append("<div>");
         sb.append(g.getVisitor());

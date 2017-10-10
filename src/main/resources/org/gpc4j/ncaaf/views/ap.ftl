@@ -30,7 +30,7 @@
         <svg width="4500" height="2050">
 
             <#list paths as path>
-                <path d="${path.d}" stroke="${path.stroke}" fill="none" />
+                <path d="${path.d}" stroke="${path.stroke}"  stroke-width="${path.strokeWidth}" fill="none" />
             </#list>
 
             <#list weeks as week>

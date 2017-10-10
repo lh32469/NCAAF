@@ -1,6 +1,10 @@
 package org.gpc4j.ncaaf;
 
 import com.google.common.base.Strings;
+import static java.time.DayOfWeek.SATURDAY;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +15,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.gpc4j.ncaaf.hystrix.GetGameCommand;
 import org.gpc4j.ncaaf.jaxb.Game;
+import org.gpc4j.ncaaf.jaxb.Team;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -153,6 +158,40 @@ public class GamesProvider {
                 .filter(team(teamName))
                 .map(clone) // Need to return clone of games
                 .peek(anonymizeId());
+    }
+
+
+    public Optional<Game> getGame(Team team, Integer year, int week) {
+        
+        LOG.debug(team.getName() + "," + year + "," + week);
+        Stream<Game> gg = byTeamAndYear(team.getName(), year);
+
+        LocalDate _gDay = LocalDate.of(year, 9, 1)
+                .with(TemporalAdjusters.dayOfWeekInMonth(1, SATURDAY));
+
+        for (int i = 0; i < week; i++) {
+            _gDay = _gDay.plusDays(7);
+        }
+
+        final LocalDate gDay = _gDay;
+
+        LOG.debug("GameDay: " + gDay);
+        
+        int _before = 4;
+        
+        // For start of season, look up to two weeks before for 1st game.
+        if(week ==0) {
+            _before =14;
+        }
+        
+        // Make final for lambda 
+        final int before = _before;
+
+        return gg.filter(g -> {
+            LocalDate gDate = LocalDateTime.parse(g.getDate()).toLocalDate();
+            return gDay.plusDays(5).isAfter(gDate)
+                    && gDay.minusDays(before).isBefore(gDate);
+        }).findFirst();
     }
 
 
