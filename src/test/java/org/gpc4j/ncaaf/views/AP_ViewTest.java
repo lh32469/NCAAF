@@ -25,20 +25,21 @@ public class AP_ViewTest {
 
     private static JedisPool pool;
 
+    private static GamesProvider gp;
+
+    private static TeamProvider tp;
+
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(AP_ViewTest.class);
-
-
-    public AP_ViewTest() {
-    }
 
 
     @BeforeClass
     public static void setUpClass() {
         JedisPoolConfig cfg = new JedisPoolConfig();
 
-        pool = new JedisPool(cfg, "localhost", 6379, 0, "welcome1", 10, "JUnit");
         pool = new JedisPool(cfg, "macmini.local", 6388, 0, "welcome1", 10, "JUnit");
+        gp = new GamesProvider(pool);
+        tp = new TeamProvider(pool);
     }
 
 
@@ -57,7 +58,7 @@ public class AP_ViewTest {
     }
 
 
-   // @Test
+    @Test
     public void LSU_Week1() {
 
         final String teamName = "LSU";
@@ -65,9 +66,6 @@ public class AP_ViewTest {
         Team team = new GetTeamCommand(teamName, j).execute();
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
-
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
 
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
@@ -78,7 +76,7 @@ public class AP_ViewTest {
     }
 
 
-  //  @Test
+    @Test
     public void Wisconsin_Week1() {
 
         final String teamName = "Wisconsin";
@@ -86,9 +84,6 @@ public class AP_ViewTest {
         Team team = new GetTeamCommand(teamName, j).execute();
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
-
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
 
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
@@ -99,7 +94,7 @@ public class AP_ViewTest {
     }
 
 
-   // @Test
+    @Test
     public void Wisconsin_Week2() {
 
         final String teamName = "Wisconsin";
@@ -107,9 +102,6 @@ public class AP_ViewTest {
         Team team = new GetTeamCommand(teamName, j).execute();
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
-
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
 
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
@@ -120,7 +112,7 @@ public class AP_ViewTest {
     }
 
 
-  //  @Test
+    @Test
     public void Michigan_Week2() {
 
         final String teamName = "Michigan";
@@ -128,9 +120,6 @@ public class AP_ViewTest {
         Team team = new GetTeamCommand(teamName, j).execute();
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
-
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
 
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
@@ -141,7 +130,7 @@ public class AP_ViewTest {
     }
 
 
-//    @Test
+    @Test
     public void Alabama_Week2() {
 
         final String teamName = "Alabama";
@@ -150,9 +139,6 @@ public class AP_ViewTest {
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
 
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
-
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
         instance.setTp(tp);
@@ -160,12 +146,12 @@ public class AP_ViewTest {
         Team opponent = instance.getOpponent(1, team);
         assertEquals("Western Kentucky", opponent.getName());
 
-        Game game = instance.getGame(1, team);
-        System.out.println("" + game);
+//        Game game = instance.getGame(1, team);
+//        System.out.println("" + game);
     }
 
 
-  //  // @Test
+    //  // @Test
     public void getRecordFloridaState() {
 
         final String teamName = "Florida State";
@@ -174,14 +160,11 @@ public class AP_ViewTest {
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
 
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
-
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
         instance.setTp(tp);
 
-        String record = instance.getRecord(1,team);
+        String record = instance.getRecord(1, team);
         assertNotNull(record);
         LOG.info(record);
         assertEquals("2 - 1", record);
@@ -189,7 +172,7 @@ public class AP_ViewTest {
     }
 
 
-  //  @Test
+    @Test
     public void MichiganState_Week1() {
 
         final String teamName = "Michigan State";
@@ -198,9 +181,6 @@ public class AP_ViewTest {
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
 
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
-
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
         instance.setTp(tp);
@@ -208,12 +188,12 @@ public class AP_ViewTest {
         Team opponent = instance.getOpponent(0, team);
         assertEquals("Furman", opponent.getName());
 
-        Game game = instance.getGame(0, team);
-        System.out.println("" + game);
+//        Game game = instance.getGame(0, team);
+//        System.out.println("" + game);
     }
 
 
-   // @Test
+    @Test
     public void MichiganState_Week4() {
 
         final String teamName = "Michigan State";
@@ -222,9 +202,6 @@ public class AP_ViewTest {
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
 
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
-
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
         instance.setTp(tp);
@@ -232,12 +209,12 @@ public class AP_ViewTest {
         Team opponent = instance.getOpponent(3, team);
         assertEquals("Wisconsin", opponent.getName());
 
-        Game game = instance.getGame(3, team);
-        System.out.println("" + game);
+//        Game game = instance.getGame(3, team);
+//        System.out.println("" + game);
     }
 
 
-   // @Test
+  //  @Test
     public void Mississippi_Week4() {
 
         final String teamName = "Mississippi";
@@ -246,9 +223,6 @@ public class AP_ViewTest {
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
 
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
-
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
         instance.setTp(tp);
@@ -256,12 +230,12 @@ public class AP_ViewTest {
         Team opponent = instance.getOpponent(3, team);
         assertEquals("Georgia", opponent.getName());
 
-        Game game = instance.getGame(3, team);
-        System.out.println("" + game);
+//        Game game = instance.getGame(3, team);
+//        System.out.println("" + game);
     }
 
 
-    @Test
+   // @Test
     public void Miami_Florida() {
 
         final String teamName = "Miami (FL)";
@@ -269,9 +243,6 @@ public class AP_ViewTest {
         Team team = new GetTeamCommand(teamName, j).execute();
         pool.returnResource(j);
         assertEquals(teamName, team.getName());
-
-        GamesProvider gp = new GamesProvider(pool);
-        TeamProvider tp = new TeamProvider(pool);
 
         AP_View instance = new AP_View(2016);
         instance.setGp(gp);
