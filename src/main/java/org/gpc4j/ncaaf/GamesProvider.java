@@ -162,7 +162,7 @@ public class GamesProvider {
 
 
     public Optional<Game> getGame(Team team, Integer year, int week) {
-        
+
         LOG.debug(team.getName() + "," + year + "," + week);
         Stream<Game> gg = byTeamAndYear(team.getName(), year);
 
@@ -176,20 +176,25 @@ public class GamesProvider {
         final LocalDate gDay = _gDay;
 
         LOG.debug("GameDay: " + gDay);
-        
+
         int _before = 4;
-        
-        // For start of season, look up to two weeks before for 1st game.
-        if(week ==0) {
-            _before =14;
+        int _after = 5;
+
+        if (week == 0) {
+            // For start of season, look up to two weeks before for 1st game.
+            _before = 14;
+        } else if (week == 14) {
+            // For end of season, look up to three weeks after for last game.
+            _after = 21;
         }
-        
+
         // Make final for lambda 
         final int before = _before;
+        final int after = _after;
 
         return gg.filter(g -> {
             LocalDate gDate = LocalDateTime.parse(g.getDate()).toLocalDate();
-            return gDay.plusDays(5).isAfter(gDate)
+            return gDay.plusDays(after).isAfter(gDate)
                     && gDay.minusDays(before).isBefore(gDate);
         }).findFirst();
     }
