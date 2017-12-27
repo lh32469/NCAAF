@@ -184,8 +184,8 @@ public class GamesProvider {
             // For start of season, look up to two weeks before for 1st game.
             _before = 14;
         } else if (week == 14) {
-            // For end of season, look up to three weeks after for last game.
-            _after = 21;
+            // For end of season, look up to three four after for last game.
+            _after = 28;
         }
 
         // Make final for lambda 
