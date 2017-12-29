@@ -43,8 +43,6 @@ public class BowlGamesTest {
     }
 
 
-
-
     @Test
     public void orangeBowl2017() {
         Team team = new Team();
@@ -56,6 +54,15 @@ public class BowlGamesTest {
     }
 
 
+    @Test
+    public void roseBowl2018() {
+        Team team = new Team();
+        team.setName("Georgia");
+        Game game = gp.getGame(team, 2017, 14).get();
+        LOG.info(game.toString());
+        assertThat(game.getHome(), is("Oklahoma"));
+        assertThat(game.getVisitor(), is("Georgia"));
+    }
 
 
 }

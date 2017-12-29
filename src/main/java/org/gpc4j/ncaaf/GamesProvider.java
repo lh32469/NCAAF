@@ -184,7 +184,7 @@ public class GamesProvider {
             // For start of season, look up to two weeks before for 1st game.
             _before = 14;
         } else if (week == 14) {
-            // For end of season, look up to three four after for last game.
+            // For end of season, look up to four weeks after for last game.
             _after = 28;
         }
 
@@ -192,11 +192,22 @@ public class GamesProvider {
         final int before = _before;
         final int after = _after;
 
-        return gg.filter(g -> {
-            LocalDate gDate = LocalDateTime.parse(g.getDate()).toLocalDate();
-            return gDay.plusDays(after).isAfter(gDate)
-                    && gDay.minusDays(before).isBefore(gDate);
-        }).findFirst();
+        Optional<Game> optional
+                = gg.filter(g -> {
+                    LocalDate gDate
+                            = LocalDateTime.parse(g.getDate()).toLocalDate();
+                    return gDay.plusDays(after).isAfter(gDate)
+                            && gDay.minusDays(before).isBefore(gDate);
+                }).findFirst();
+
+        if (!optional.isPresent() && week == 14) {
+            // Feed from ESPN doesn't include dates 
+            // for playoff games before they are played
+            optional = gameWithNoDate(team.getName());
+            LOG.debug("Next: " + optional);
+        }
+
+        return optional;
     }
 
 
@@ -206,6 +217,17 @@ public class GamesProvider {
                 .reduce((first, second) -> second).get();
         LOG.debug("Game: " + g);
         return g;
+    }
+
+
+    public Optional<Game> gameWithNoDate(String teamName) {
+        LOG.debug("Team: " + teamName);
+        Optional<Game> opt = byTeam(teamName)
+                .filter(game -> game.getDate() == null)
+                .findFirst();
+
+        LOG.debug("Game: " + opt);
+        return opt;
     }
 
 
