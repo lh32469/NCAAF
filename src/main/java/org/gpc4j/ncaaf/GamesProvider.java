@@ -203,7 +203,7 @@ public class GamesProvider {
         if (!optional.isPresent() && week == 14) {
             // Feed from ESPN doesn't include dates 
             // for playoff games before they are played
-            optional = gameWithNoDate(team.getName());
+            optional = gameWithNoDate(team.getName(), year);
             LOG.debug("Next: " + optional);
         }
 
@@ -220,10 +220,15 @@ public class GamesProvider {
     }
 
 
-    public Optional<Game> gameWithNoDate(String teamName) {
+    /**
+     * Get a Game for the named team that does not contain a date but whose key
+     * matches the keyYear provided.
+     */
+    public Optional<Game> gameWithNoDate(String teamName, Integer keyYear) {
         LOG.debug("Team: " + teamName);
         Optional<Game> opt = byTeam(teamName)
                 .filter(game -> game.getDate() == null)
+                .filter(game -> game.getKey().contains(keyYear.toString()))
                 .findFirst();
 
         LOG.debug("Game: " + opt);

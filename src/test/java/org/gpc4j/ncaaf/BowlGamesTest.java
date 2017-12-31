@@ -1,12 +1,8 @@
 package org.gpc4j.ncaaf;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
 import static org.hamcrest.core.Is.is;
-import org.junit.Assert;
 import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,7 +40,7 @@ public class BowlGamesTest {
 
 
     @Test
-    public void orangeBowl2017() {
+    public void orangeBowlWisconsin_2017() {
         Team team = new Team();
         team.setName("Wisconsin");
         Game game = gp.getGame(team, 2017, 14).get();
@@ -55,13 +51,57 @@ public class BowlGamesTest {
 
 
     @Test
-    public void roseBowl2018() {
+    public void orangeBowlMiami_2017() {
+        Team team = new Team();
+        team.setName("Miami");
+        Game game = gp.getGame(team, 2017, 14).get();
+        LOG.info(game.toString());
+        assertThat(game.getHome(), is("Miami"));
+        assertThat(game.getVisitor(), is("Wisconsin"));
+    }
+
+
+    @Test
+    public void roseBowlGeorgia_2018() {
         Team team = new Team();
         team.setName("Georgia");
         Game game = gp.getGame(team, 2017, 14).get();
         LOG.info(game.toString());
         assertThat(game.getHome(), is("Oklahoma"));
         assertThat(game.getVisitor(), is("Georgia"));
+    }
+
+
+    @Test
+    public void roseBowlOklahoma_2018() {
+        Team team = new Team();
+        team.setName("Oklahoma");
+        Game game = gp.getGame(team, 2017, 14).get();
+        LOG.info(game.toString());
+        assertThat(game.getHome(), is("Oklahoma"));
+        assertThat(game.getVisitor(), is("Georgia"));
+    }
+
+
+    @Test
+    public void sugarBowlClemson_2018() {
+        Team team = new Team();
+        team.setName("Clemson");
+        Game game = gp.getGame(team, 2017, 14).get();
+        LOG.info(game.toString());
+        assertThat(game.getHome(), is("Clemson"));
+        assertThat(game.getVisitor(), is("Alabama"));
+    }
+
+
+    @Test
+    public void sugarBowlAlabama_2018() {
+        Team team = new Team();
+        team.setName("Alabama");
+        Game game = gp.getGame(team, 2017, 14).get();
+        LOG.info(game.toString());
+        assertThat(game.getHome(), is("Clemson"));
+        assertThat(game.getVisitor(), is("Alabama"));
     }
 
 
