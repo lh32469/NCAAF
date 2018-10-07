@@ -153,26 +153,26 @@ public class AP_View extends View {
                     Path p = new Path();
                     p.setD(cpath);
 
-                    // See if last week was a Bye Week
-                    Team lwOpp = getOpponent(week.getNumber() - 1, lastWeek);
-                    String lastWeeksOpponentName = lwOpp.getName();
-
-                    if (endY > startY) {
-                        p.setStroke("red");
-                    } else if (endY < startY) {
-                        p.setStroke("green");
-                    } else {
-                        p.setStroke("blue");
-                    }
-
-                    if (lastWeeksOpponentName != null
-                            && lastWeeksOpponentName.contains("Bye")) {
-                        p.setStroke("black");
-                    }
-
+//                    // See if last week was a Bye Week
+//                    Team lwOpp = getOpponent(week.getNumber() - 1, lastWeek);
+//                    String lastWeeksOpponentName = lwOpp.getName();
+//
+//                    if (endY > startY) {
+//                        p.setStroke("red");
+//                    } else if (endY < startY) {
+//                        p.setStroke("green");
+//                    } else {
+//                        p.setStroke("blue");
+//                    }
+//
+//                    if (lastWeeksOpponentName != null
+//                            && lastWeeksOpponentName.contains("Bye")) {
+//                        p.setStroke("black");
+//                    }
                     paths.add(p);
                     // Default stroke-width
                     p.setStrokeWidth("1");
+                    p.setStroke("black");
 
                     if (week.getNumber() == 0) {
                         continue;
@@ -189,9 +189,31 @@ public class AP_View extends View {
 
                     Game g = opt.get();
 
+                    // Determine if Win or Loss
+                    boolean win = false;
+
                     if (g.getHomeScore() != null) {
                         int homeScore = Integer.parseInt(g.getHomeScore());
                         int visitorScore = Integer.parseInt(g.getVisitorScore());
+
+                        // See if team is home or visitor
+                        if (team.getName().equals(g.getHome())) {
+                            // Team at Home
+                            if (homeScore > visitorScore) {
+                                win = true;
+                            }
+                        } else {
+                            // Team at Visitor
+                            if (visitorScore > homeScore) {
+                                win = true;
+                            }
+                        }
+
+                        if (win) {
+                            p.setStroke("green");
+                        } else {
+                            p.setStroke("red");
+                        }
 
                         int diff = Math.abs(homeScore - visitorScore);
 
@@ -355,7 +377,7 @@ public class AP_View extends View {
     public String getResultAsText(int week, Team team) {
 
         String result = getResult(week, team);
-        
+
         result = result.replaceAll("<div>", "");
         result = result.replaceAll("</div>", "");
         result = result.replaceAll("<br/>", "\\\\n");
