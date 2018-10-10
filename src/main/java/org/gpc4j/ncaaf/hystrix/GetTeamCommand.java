@@ -3,6 +3,7 @@ package org.gpc4j.ncaaf.hystrix;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import java.util.Map;
+import org.gpc4j.ncaaf.XTeam;
 import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_COMMAND_PROPS;
 import static org.gpc4j.ncaaf.hystrix.HystrixProperties.REDIS_THREAD_PROPERTIES;
 import org.gpc4j.ncaaf.jaxb.Team;
@@ -62,7 +63,7 @@ public class GetTeamCommand extends HystrixCommand<Team> {
             throw new IllegalStateException(name + " not found");
         }
 
-        Team team = new Team();
+        Team team = new XTeam();
         team.setName(name);
         team.setImage(data.get("image"));
 
