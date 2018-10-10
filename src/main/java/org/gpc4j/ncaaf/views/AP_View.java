@@ -8,14 +8,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
+import org.gpc4j.ncaaf.XTeam;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Path;
 import org.gpc4j.ncaaf.jaxb.Team;
@@ -294,12 +293,25 @@ public class AP_View extends View {
                 return tp.getTeam(home);
             }
         } else {
-            Team t = new Team();
+            Team t = new XTeam();
             t.setName("Unknown");
             t.setImage(BYE);
             return t;
         }
 
+    }
+
+
+    /**
+     * Get the rank of the Team provided in the List of Teams provided.
+     *
+     * @return Rank (position) in the List of Teams or -1 if not present.
+     */
+    public int getRank(final Team team, final List<Team> teams) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(team.getName() + " -> " + teams.indexOf(team));
+        }
+        return teams.indexOf(team);
     }
 
 

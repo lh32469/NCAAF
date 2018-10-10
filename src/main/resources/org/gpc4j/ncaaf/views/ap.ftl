@@ -55,6 +55,7 @@
                 <#list week.teams as team>
                     <#assign record = getRecord(week.number,team) />
                     <#assign opponent = getOpponent(week.number,team) />
+                    <#assign opponentRank = getRank(opponent,week.teams) />
                     <#assign result = getResult(week.number,team) />
                     <#assign resultAsText = getResultAsText(week.number,team) />
                     <image x="${team.CX?c}" 
@@ -75,6 +76,18 @@
                                xlink:href="${opponent.image}" >
                             <title role="tooltip">${result}</title>
                         </image>
+                        <#if opponentRank gt 0 >
+                            <#if opponentRank lt 11 >
+                                <#assign cStroke = "red" />
+                            <#else>
+                                <#assign cStroke = "black" />
+                            </#if>
+                            <circle cx="${(team.CX+120)?c}"
+                                    cy="${(team.CY+40)?c}"
+                                    r="29" 
+                                    stroke="${cStroke}" 
+                                    fill="none" />
+                        </#if>
                     <#elseIf week.number == 14 >
                         <image x="${(team.CX+100)?c}"
                                y="${(team.CY+20)?c}"
