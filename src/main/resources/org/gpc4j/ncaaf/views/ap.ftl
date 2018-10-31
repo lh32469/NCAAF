@@ -76,8 +76,8 @@
                                xlink:href="${opponent.image}" >
                             <title role="tooltip">${result}</title>
                         </image>
-                        <#if opponentRank gt 0 >
-                            <#if opponentRank lt 11 >
+                        <#if opponentRank gte 0 >
+                            <#if opponentRank lt 10 >
                                 <#assign cStroke = "red" />
                             <#else>
                                 <#assign cStroke = "black" />
