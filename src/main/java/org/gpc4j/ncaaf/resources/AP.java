@@ -120,14 +120,6 @@ public class AP {
 
             for (Team team : thisWeek.getTeams()) {
 
-                Optional<Team> next = getNext(games, team.getName());
-                if (next.isPresent()) {
-                    LOG.debug("Next:  "
-                            + team.getName() + " -> "
-                            + next.get().getName());
-                    team.setNext(next.get());
-                }
-
                 Optional<Game> nextGame = getNextGame(games, team.getName());
                 if (nextGame.isPresent()) {
                     LOG.debug("NextGame:  "
@@ -142,34 +134,6 @@ public class AP {
         }
 
         return weeks.parallelStream();
-    }
-
-
-    /**
-     * Use getNextGame instead.
-     *
-     * @deprecated
-     */
-    @Deprecated
-    Optional<Team> getNext(List<Game> games, String teamName) {
-
-        Optional<Team> next = Optional.empty();
-
-        for (Game game : games) {
-
-            String home = game.getHome();
-            String visitor = game.getVisitor();
-
-            if (teamName.equals(home)) {
-                LOG.trace(visitor + "@" + teamName);
-                next = Optional.of(tp.getTeam(visitor));
-            } else if (teamName.equals(visitor)) {
-                LOG.trace(teamName + "@" + home);
-                next = Optional.of(tp.getTeam(home));
-            }
-        }
-
-        return next;
     }
 
 
