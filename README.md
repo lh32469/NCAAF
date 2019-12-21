@@ -2,6 +2,10 @@ NCAAF graphical, weekly rankings application using Dropwizard, Swagger and Hystr
 
 Viewable at:
 
+   http://www.gpc4j.org/ncaaf/ap/2019
+   
+   http://www.gpc4j.org/ncaaf/ap/2018
+   
    http://www.gpc4j.org/ncaaf/ap/2017
    
    http://www.gpc4j.org/ncaaf/ap/2016
