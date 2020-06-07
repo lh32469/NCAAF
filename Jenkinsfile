@@ -1,0 +1,95 @@
+def project = "ncaaf2"
+
+pipeline {
+
+  options {
+    // Discard everything except the last 10 builds
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    // Don't build the same branch concurrently
+    disableConcurrentBuilds()
+
+    // Cleanup orphaned branch Docker container
+    branchTearDownExecutor 'Cleanup-NCAAF'
+  }
+
+  agent any
+
+  stages {
+
+    stage('Compile') {
+      agent {
+        docker {
+          reuseNode true
+          image 'maven:latest'
+          args '-u root -v /var/lib/jenkins/.m2:/root/.m2'
+        }
+      }
+      steps {
+        sh 'mvn -B -DskipTests clean compile'
+      }
+    }
+
+    stage('Test') {
+      agent {
+        docker {
+          reuseNode true
+          image 'maven:latest'
+          args '--add-host=macmini.local:192.168.0.150 -u root -v /var/lib/jenkins/.m2:/root/.m2'
+        }
+      }
+      steps {
+        sh 'mvn -B package'
+        junit '**/target/surefire-reports/TEST-*.xml'
+      }
+    }
+
+    stage('Build New Docker') {
+      environment {
+        registry = "$project/$BRANCH_NAME"
+        registryCredential = 'dockerhub'
+      }
+      steps {
+        sh 'ls -l target'
+        script {
+          image = docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+
+    stage('Stop Existing Docker') {
+      steps {
+        sh "docker stop $project-$BRANCH_NAME || true && docker rm $project-$BRANCH_NAME || true"
+      }
+    }
+
+    stage('Start New Docker') {
+      steps {
+        sh 'docker run -d -p 9020 ' +
+            '--restart=always ' +
+            '--add-host=macmini.local:192.168.0.150 ' +
+            '--name ncaaf-$BRANCH_NAME ' +
+            "$project/$BRANCH_NAME:$BUILD_NUMBER"
+      }
+    }
+
+    stage('Register Consul Service') {
+      steps {
+        script {
+          consul = "http://127.0.0.1:8500/v1/agent/service/register"
+          ip = sh(
+              returnStdout: true,
+              script: "docker inspect $project-$BRANCH_NAME | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+          )
+          def service = readJSON text: '{ "Port": 9020 }'
+          service["Address"] = ip.toString().trim() replaceAll("\"", "");
+          service["Name"] = "$project-$BRANCH_NAME".toString()
+          writeJSON file: 'service.json', json: service, pretty: 3
+          sh(script: "cat service.json")
+          sh(script: "curl -X PUT -d @service.json " + consul)
+        }
+      }
+    }
+
+  }
+
+}
