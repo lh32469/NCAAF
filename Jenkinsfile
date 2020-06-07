@@ -91,6 +91,13 @@ pipeline {
       }
     }
 
+    stage('Test New Branch') {
+      steps {
+        sh "sleep 15"
+        sh "curl -f localhost/$project/$branch/application.wadl"
+      }
+    }
+
   }
 
 }
