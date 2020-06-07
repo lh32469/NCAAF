@@ -68,7 +68,7 @@ pipeline {
         sh 'docker run -d -p 9020 ' +
             '--restart=always ' +
             '--add-host=macmini.local:192.168.0.150 ' +
-            '--name ncaaf-$branch ' +
+            "--name $project-$branch " +
             "$project/$branch:$BUILD_NUMBER"
       }
     }
