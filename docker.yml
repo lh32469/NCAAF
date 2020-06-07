@@ -1,0 +1,42 @@
+version: "1.0"
+redisHost: "macmini.local"
+redisPort: 6388
+redisPass: welcome1
+basePath: "/ncaaf"
+
+# the only required property is resourcePackage, for more config options see below
+# resourcePackage is comma delimited list of packages
+swagger:
+  resourcePackage: org.gpc4j.ncaaf.resources
+  title: NCAAF Graphical History
+  description: NCAAF AP Graphical History
+  uriPrefix: /ncaaf
+
+server:
+  applicationConnectors:
+  - type: http 
+    port: 9020
+  adminConnectors:
+  - type: http
+    port: 9021
+
+logging:
+  level: INFO
+  loggers:
+    org.gpc4j.ncaaf.FootballConfiguration: INFO
+    org.gpc4j.ncaaf.resources: INFO
+
+  appenders:
+    - type: console
+      threshold: WARN
+      logFormat: "%d{dd MMM HH:mm:ss} %-5level %C{1} %M %msg%n"
+    - type: file
+      currentLogFilename: /var/tmp/ncaaf.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /var/tmp/ncaaf-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+      logFormat: "%d{dd MMM HH:mm:ss} %-5level %C{1} %M %msg%n"
+
+
