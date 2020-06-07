@@ -1,4 +1,5 @@
 def project = "ncaaf2"
+def branch = BRANCH_NAME.toLowerCase()
 
 pipeline {
 
@@ -9,7 +10,7 @@ pipeline {
     disableConcurrentBuilds()
 
     // Cleanup orphaned branch Docker container
-    branchTearDownExecutor 'Cleanup-NCAAF'
+    branchTearDownExecutor 'CleanupDocker'
   }
 
   agent any
@@ -45,7 +46,7 @@ pipeline {
 
     stage('Build New Docker') {
       environment {
-        registry = "$project/$BRANCH_NAME"
+        registry = "$project/$branch"
         registryCredential = 'dockerhub'
       }
       steps {
@@ -58,7 +59,7 @@ pipeline {
 
     stage('Stop Existing Docker') {
       steps {
-        sh "docker stop $project-$BRANCH_NAME || true && docker rm $project-$BRANCH_NAME || true"
+        sh "docker stop $project-$branch || true && docker rm $project-$branch || true"
       }
     }
 
@@ -67,8 +68,8 @@ pipeline {
         sh 'docker run -d -p 9020 ' +
             '--restart=always ' +
             '--add-host=macmini.local:192.168.0.150 ' +
-            '--name ncaaf-$BRANCH_NAME ' +
-            "$project/$BRANCH_NAME:$BUILD_NUMBER"
+            '--name ncaaf-branch ' +
+            "$project/$branch:$BUILD_NUMBER"
       }
     }
 
@@ -78,11 +79,11 @@ pipeline {
           consul = "http://127.0.0.1:8500/v1/agent/service/register"
           ip = sh(
               returnStdout: true,
-              script: "docker inspect $project-$BRANCH_NAME | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+              script: "docker inspect $project-$branch | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
           def service = readJSON text: '{ "Port": 9020 }'
           service["Address"] = ip.toString().trim() replaceAll("\"", "");
-          service["Name"] = "$project-$BRANCH_NAME".toString()
+          service["Name"] = "$project-$branch".toString()
           writeJSON file: 'service.json', json: service, pretty: 3
           sh(script: "cat service.json")
           sh(script: "curl -X PUT -d @service.json " + consul)
