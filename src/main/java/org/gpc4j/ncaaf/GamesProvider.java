@@ -167,7 +167,9 @@ public class GamesProvider {
         Stream<Game> gg = byTeamAndYear(team.getName(), year);
 
         LocalDate _gDay = LocalDate.of(year, 9, 1)
-                .with(TemporalAdjusters.dayOfWeekInMonth(1, SATURDAY));
+                .with(TemporalAdjusters.firstDayOfMonth());
+
+        LOG.debug("Season Starts: " + _gDay);
 
         for (int i = 0; i < week; i++) {
             _gDay = _gDay.plusDays(7);
@@ -181,8 +183,8 @@ public class GamesProvider {
         int _after = 5;
 
         if (week == 0) {
-            // For start of season, look up to two weeks before for 1st game.
-            _before = 14;
+            // For start of season, look up to three weeks before for 1st game.
+            _before = 22;
         } else if (week == 14) {
             // For end of season, look up to four weeks after for last game.
             _after = 28;
