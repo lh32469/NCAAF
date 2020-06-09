@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
 import static org.hamcrest.core.Is.is;
+
+import org.gpc4j.ncaaf.redis.RedisGamesProvider;
 import org.junit.Assert;
 import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
@@ -38,7 +40,7 @@ public class GamesProviderTest {
         //  pool = new JedisPool(cfg, "localhost", 6379, 0, "welcome1", 10, "JUnit");
         pool = new JedisPool(cfg, "macmini.local", 6388, 0, "welcome1", 10, "JUnit");
 
-        gp = new GamesProvider(pool);
+        gp = new RedisGamesProvider(pool);
         tp = new TeamProvider(pool);
     }
 

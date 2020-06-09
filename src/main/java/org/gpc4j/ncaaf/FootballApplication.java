@@ -7,6 +7,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.gpc4j.ncaaf.redis.RedisGamesProvider;
 import org.gpc4j.ncaaf.resources.AP;
 import org.zapodot.hystrix.bundle.HystrixBundle;
 import redis.clients.jedis.JedisPool;
@@ -24,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.glassfish.jersey.message.MessageProperties;
 import org.glassfish.jersey.server.ServerProperties;
-import org.gpc4j.ncaaf.resources.BracketsResource;
 import org.gpc4j.ncaaf.resources.GamesResource;
 import org.gpc4j.ncaaf.resources.UpdateSchedule;
 import org.gpc4j.ncaaf.writers.GameWriter;
@@ -84,7 +84,6 @@ public class FootballApplication extends Application<FootballConfiguration> {
         jersey.register(AP.class);
         jersey.register(UpdateSchedule.class);
         jersey.register(GamesResource.class);
-        jersey.register(BracketsResource.class);
         jersey.register(GamesWriter.class);
         jersey.register(GameWriter.class);
         jersey.property(MessageProperties.XML_FORMAT_OUTPUT, true);
@@ -134,7 +133,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
 
             bind(pool);
 
-            bind(new GamesProvider(pool));
+            bind(new RedisGamesProvider(pool)).to(GamesProvider.class);
             bind(new TeamProvider(pool));
         }
 
