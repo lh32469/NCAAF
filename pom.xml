@@ -19,7 +19,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <dropwizard.version>1.0.3</dropwizard.version>
+    <dropwizard.version>1.3.14</dropwizard.version>
     <mainClass>org.gpc4j.ncaaf.FootballApplication</mainClass>
   </properties>
 
@@ -57,6 +57,11 @@
       <groupId>com.smoketurner</groupId>
       <artifactId>dropwizard-swagger</artifactId>
       <version>1.0.0-1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.ravendb</groupId>
+      <artifactId>ravendb</artifactId>
+      <version>4.1.6</version>
     </dependency>
     <dependency>
       <groupId>javax.xml.bind</groupId>

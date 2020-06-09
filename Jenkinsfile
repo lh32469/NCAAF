@@ -1,4 +1,5 @@
-def project = "ncaaf2"
+// project should be the last token of the Git repo URL in lowercase.
+def project = "ncaaf"
 def branch = BRANCH_NAME.toLowerCase()
 
 pipeline {
