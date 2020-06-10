@@ -3,8 +3,8 @@ package org.gpc4j.ncaaf.views;
 import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
-import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
+import org.gpc4j.ncaaf.redis.RedisGamesProvider;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class AP_ViewTest {
         JedisPoolConfig cfg = new JedisPoolConfig();
 
         pool = new JedisPool(cfg, "macmini.local", 6388, 0, "welcome1", 10, "JUnit");
-        gp = new GamesProvider(pool);
+        gp = new RedisGamesProvider(pool);
         tp = new TeamProvider(pool);
     }
 

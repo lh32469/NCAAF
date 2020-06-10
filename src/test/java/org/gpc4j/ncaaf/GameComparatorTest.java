@@ -2,6 +2,7 @@ package org.gpc4j.ncaaf;
 
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
+import org.gpc4j.ncaaf.redis.RedisGamesProvider;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,7 +39,7 @@ public class GameComparatorTest {
         JedisPool pool = new JedisPool(cfg, "macmini.local",
                 6388, 0, "welcome1", 10, "JUnit");
 
-        GP = new GamesProvider(pool);
+        GP = new RedisGamesProvider(pool);
         TP = new TeamProvider(pool);
     }
 
