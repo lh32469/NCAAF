@@ -22,6 +22,9 @@ public class FootballConfiguration extends Configuration {
     private String version;
 
     @NotEmpty
+    private String ravenDB;
+
+    @NotEmpty
     private String redisHost;
 
     @Min(1024)
@@ -44,6 +47,9 @@ public class FootballConfiguration extends Configuration {
         this.version = version;
     }
 
+    public String getRavenDB() {
+        return ravenDB;
+    }
 
     public String getRedisHost() {
         return redisHost;

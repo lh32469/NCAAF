@@ -46,6 +46,8 @@ public class XGame extends Game {
         setVisitorRank(g.getVisitorRank());
         setVisitorScore(g.getVisitorScore());
         setDate(g.getDate());
+        setSeason(g.getSeason());
+        setWeek(g.getWeek());
         setId(g.getId());
         setKey(g.getKey());
     }
