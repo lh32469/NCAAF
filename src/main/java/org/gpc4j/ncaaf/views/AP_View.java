@@ -2,6 +2,8 @@ package org.gpc4j.ncaaf.views;
 
 import com.google.common.base.Strings;
 import io.dropwizard.views.View;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -21,6 +23,8 @@ import org.gpc4j.ncaaf.jaxb.Team;
 import org.gpc4j.ncaaf.jaxb.Week;
 import org.gpc4j.ncaaf.resources.GamesResource;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 
 /**
@@ -45,21 +49,21 @@ public class AP_View extends View {
 
     private String title;
 
-    private TeamProvider tp;
-
-    private GamesProvider gp;
-
-    private final int year;
+    private int year;
 
     private final static Game BYE_GAME;
 
-    private final List<LocalDateTime> saturdays = new LinkedList<>();
-
-    static final List<Game> badGames = new LinkedList<>();
+    private final List<LocalDate> saturdays = new LinkedList<>();
 
     private static final ZoneId EST = ZoneId.of("US/Eastern");
 
     private static final ZoneId PST = ZoneId.of("US/Pacific");
+
+    @Inject
+    private GamesProvider gp;
+
+    @Inject
+    private TeamProvider tp;
 
     private static final DateTimeFormatter DTF
             = DateTimeFormatter.ofPattern("MMMM dd, hh:mm a z");
@@ -72,11 +76,20 @@ public class AP_View extends View {
     }
 
 
+    public AP_View() {
+        super("ap.ftl");
+    }
+
+    @Deprecated
     public AP_View(int year) {
         super("ap.ftl");
+        setYear(year);
+    }
+
+    public void setYear(int year) {
         this.year = year;
 
-        LocalDateTime date = LocalDateTime.parse(year + "-09-03T20:00");
+        LocalDate date = LocalDate.parse(year + "-09-03");
         saturdays.add(date);
 
         for (int i = 0; i < 20; i++) {
@@ -254,12 +267,12 @@ public class AP_View extends View {
 
         final String teamName = team.getName().trim();
 
-        LocalDateTime gDay = saturdays.get(week);
+        LocalDate gDay = saturdays.get(week);
         LOG.debug(week + ": " + teamName + ", GameDay: " + gDay);
 
         List<Game> games = gp.gamesPlayed(teamName, year)
                 .filter(g -> {
-                    LocalDateTime gDate = LocalDateTime.parse(g.getDate());
+                    LocalDate gDate = LocalDate.parse(g.getDate());
                     return gDate.isBefore(gDay.minusDays(3));
                 })
                 .collect(Collectors.toList());
@@ -312,27 +325,6 @@ public class AP_View extends View {
             LOG.trace(team.getName() + " -> " + teams.indexOf(team));
         }
         return teams.indexOf(team);
-    }
-
-
-    /**
-     * See if new games have been loaded in to DB for current week.
-     *
-     * @param week
-     * @return
-     */
-    public boolean newGamesPosted(int week) {
-
-        LocalDateTime gDay = saturdays.get(week);
-
-        long games = gp.byYear(year)
-                .filter(g -> {
-                    LocalDateTime gDate = LocalDateTime.parse(g.getDate());
-                    return gDay.plusDays(4).isAfter(gDate)
-                            && gDay.minusDays(4).isBefore(gDate);
-                }).count();
-
-        return games > 10;
     }
 
 

@@ -6,9 +6,14 @@ import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
+import net.ravendb.client.documents.DocumentStore;
+import net.ravendb.client.documents.IDocumentStore;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.gpc4j.ncaaf.redis.RedisGamesProvider;
+import org.gpc4j.ncaaf.jaxb.Team;
+import org.gpc4j.ncaaf.ravendb.RavenGamesProvider;
+import org.gpc4j.ncaaf.ravendb.RavenTeamProvider;
 import org.gpc4j.ncaaf.resources.AP;
+import org.gpc4j.ncaaf.views.AP_View;
 import org.zapodot.hystrix.bundle.HystrixBundle;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -128,13 +133,21 @@ public class FootballApplication extends Application<FootballConfiguration> {
             cfg.setTestWhileIdle(true);
             JedisPool pool = new JedisPool(cfg, config.getRedisHost(),
                     config.getRedisPort(), 0, config.getRedisPass(), 10);
-//            JedisPool pool = new JedisPool(cfg, config.getRedisHost(),
-//                    config.getRedisPort());
 
             bind(pool);
 
-            bind(new RedisGamesProvider(pool)).to(GamesProvider.class);
-            bind(new TeamProvider(pool));
+            bindAsContract(AP_View.class);
+
+            IDocumentStore store
+                = new DocumentStore(config.getRavenDB(), "NCAAF");
+
+            store.initialize();
+
+            bind(store).to(IDocumentStore.class);
+
+            bind(RavenGamesProvider.class).to(GamesProvider.class);
+            bind(RavenTeamProvider.class).to(TeamProvider.class);
+
         }
 
 

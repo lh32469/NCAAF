@@ -48,6 +48,8 @@ public class AP {
     @Inject
     private TeamProvider tp;
 
+    @Inject
+    AP_View view;
 
     @PostConstruct
     public void postConstruct() {
@@ -68,14 +70,11 @@ public class AP {
     @Path("{year}")
     public AP_View getYear(@PathParam("year") Integer year) throws Exception {
         LOG.info(year.toString());
-        //LOG.debug("This: " + this);
-        //LOG.debug("Pool: " + pool);
 
-        AP_View view = new AP_View(year);
         view.setTitle(year + " AP Rankings");
         view.setWeeks(getWeeks(year).collect(Collectors.toList()));
-        view.setTp(tp);
-        view.setGp(gp);
+        view.setYear(year);
+
         return view;
     }
 

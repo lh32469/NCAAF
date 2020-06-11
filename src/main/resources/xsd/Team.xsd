@@ -10,11 +10,11 @@
            xmlns="http://jaxb.ncaaf.gpc4j.org"
            targetNamespace="http://jaxb.ncaaf.gpc4j.org"
            elementFormDefault="qualified">
-  
+
     <xs:include schemaLocation="Game.xsd"/>
 
-    <xs:element name="team" type="team" />
-    
+    <xs:element name="team" type="team"/>
+
     <xs:element name="teams">
         <xs:complexType>
             <xs:sequence>
@@ -24,9 +24,15 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    
+
     <xs:complexType name="team">
         <xs:sequence>
+            <xs:element name="id"
+                        maxOccurs="1"
+                        type="xs:string"/>
+            <xs:element name="names"
+                        maxOccurs="unbounded"
+                        type="xs:string"/>
             <xs:element name="cX"
                         maxOccurs="1"
                         type="xs:int"/>
@@ -55,7 +61,7 @@
                         maxOccurs="1"
                         type="game"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 
 </xs:schema>

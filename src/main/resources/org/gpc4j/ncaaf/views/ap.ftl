@@ -6,7 +6,7 @@
 
     <body>
         <script type="text/javascript">
-         
+
             function MakeTransparent2(evt) {
                 evt.target.setAttributeNS(null,"opacity","0.5");
             }
@@ -14,9 +14,9 @@
             function MakeOpaque2(evt) {
                 evt.target.setAttributeNS(null,"opacity","1");
             }
-           
+
         </script>
-        
+
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,7 +26,7 @@
             ga('create', 'UA-10033624-3', 'auto');
             ga('send', 'pageview');
         </script>
-        
+
         <svg width="4500" height="2050">
 
             <#list paths as path>
@@ -44,13 +44,13 @@
                     <text x="${(week.XPos-10)?c}" y="25" fill="black">Final Results
                     </text>
                 <#else>
-                    <text x="${week.XPos?c}" 
+                    <text x="${week.XPos?c}"
                           y="25" fill="black">Week ${week.number} [${week.volatility}]
                         <title role="tooltip">[volatility score] Indication of the amount of position changes from prior week
                         </title>
                     </text>
                 </#if>
-                
+
                 <#assign place = 1>
                 <#list week.teams as team>
                     <#assign record = getRecord(week.number,team) />
@@ -58,7 +58,7 @@
                     <#assign opponentRank = getRank(opponent,week.teams) />
                     <#assign result = getResult(week.number,team) />
                     <#assign resultAsText = getResultAsText(week.number,team) />
-                    <image x="${team.CX?c}" 
+                    <image x="${team.CX?c}"
                            y="${team.CY?c}"
                            width="70"
                            height="70"
@@ -67,7 +67,7 @@
                            xlink:href="${team.image}" >
                         <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
-                    <#if week.number < 14 && newGamesPosted(week.number) >
+                    <#if week.number < 14>
                         <image x="${(team.CX+100)?c}"
                                y="${(team.CY+20)?c}"
                                width="40"
@@ -84,8 +84,8 @@
                             </#if>
                             <circle cx="${(team.CX+120)?c}"
                                     cy="${(team.CY+40)?c}"
-                                    r="29" 
-                                    stroke="${cStroke}" 
+                                    r="29"
+                                    stroke="${cStroke}"
                                     fill="none" />
                         </#if>
                     <#elseIf week.number == 14 >
@@ -100,7 +100,7 @@
                     </#if>
                     <#assign place = place + 1>
                 </#list>
-                    
+
             </#list>
         </svg>
     </body>
