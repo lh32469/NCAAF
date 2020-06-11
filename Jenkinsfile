@@ -36,7 +36,7 @@ pipeline {
         docker {
           reuseNode true
           image 'maven:latest'
-          args '--add-host=macmini.local:192.168.0.150 -u root -v /var/lib/jenkins/.m2:/root/.m2'
+          args '--dns=172.17.0.1 -u root -v /var/lib/jenkins/.m2:/root/.m2'
         }
       }
       steps {
@@ -68,7 +68,7 @@ pipeline {
       steps {
         sh 'docker run -d -p 9020 ' +
             '--restart=always ' +
-            '--add-host=macmini.local:192.168.0.150 ' +
+            '--dns=172.17.0.1 ' +
             "--name $project-$branch " +
             "$project/$branch:$BUILD_NUMBER"
       }
