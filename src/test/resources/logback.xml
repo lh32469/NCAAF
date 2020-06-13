@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  
-    
-    <appender name="STDOUT" 
+
+    <appender name="STDOUT"
               class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{dd MMM HH:mm:ss} %-5level %C{0} %M %msg%n</pattern>
             <!-- this quadruples logging throughput -->
             <immediateFlush>true</immediateFlush>
-        </encoder> 
+        </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
+            <level>INFO</level>
         </filter>
-    </appender>   
-   
-   
+    </appender>
+
     <root level="TRACE">
         <appender-ref ref="STDOUT" />
     </root>
