@@ -1,257 +1,135 @@
 package org.gpc4j.ncaaf.views;
 
-import org.gpc4j.ncaaf.GamesProvider;
-import org.gpc4j.ncaaf.TeamProvider;
-import org.gpc4j.ncaaf.hystrix.GetTeamCommand;
+import net.ravendb.client.documents.DocumentStore;
+import net.ravendb.client.documents.IDocumentStore;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.gpc4j.ncaaf.providers.GamesProvider;
+import org.gpc4j.ncaaf.PollProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
+import org.gpc4j.ncaaf.XTeam;
+import org.gpc4j.ncaaf.jaxb.Path;
 import org.gpc4j.ncaaf.jaxb.Team;
-import org.gpc4j.ncaaf.redis.RedisGamesProvider;
+import org.gpc4j.ncaaf.ravendb.RavenGamesProvider;
+import org.gpc4j.ncaaf.ravendb.RavenTeamProvider;
+import org.gpc4j.ncaaf.resources.AP;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
- *
  * @author ltharris
  */
 public class AP_ViewTest {
 
-    private static JedisPool pool;
-
-    private static GamesProvider gp;
-
-    private static TeamProvider tp;
-
-    final static private org.slf4j.Logger LOG
-            = LoggerFactory.getLogger(AP_ViewTest.class);
+  protected ServiceLocator locator;
 
 
-    @BeforeClass
-    public static void setUpClass() {
-        JedisPoolConfig cfg = new JedisPoolConfig();
+  AP_View instance;
+  AP ap = new AP();
 
-        pool = new JedisPool(cfg, "macmini.local", 6388, 0, "welcome1", 10, "JUnit");
-        gp = new RedisGamesProvider(pool);
-        tp = new TeamProvider(pool);
+  final static private Logger LOG
+      = LoggerFactory.getLogger(AP_ViewTest.class);
+
+
+  @After
+  public void tearDown() {
+    if (locator != null) {
+      locator.shutdown();
     }
+  }
+
+  @Before
+  public void setup() throws Exception {
+
+    IDocumentStore store
+        = new DocumentStore("http://dell-4290.local:5050", "NCAAF");
+
+    store.initialize();
+
+    final AbstractBinder binder = new AbstractBinder() {
+      @Override
+      public void configure() {
+        bind(RavenTeamProvider.class).to(TeamProvider.class);
+        bindAsContract(PollProvider.class);
+
+        bind(RavenGamesProvider.class).to(GamesProvider.class);
+        bind(store).to(IDocumentStore.class);
+
+        instance = new AP_View();
+        bind(instance).to(AP_View.class);
+      }
+    };
+
+    locator = ServiceLocatorUtilities.bind(binder);
+
+    locator.inject(instance);
+    locator.inject(ap);
+  }
+
+//    @Test
+//    public void getWeeks1() {
+//        instance.setYear(2019);
+//        List<Week> weeks = instance.getWeeksByScore();
+//        System.out.println("weeks = " + weeks.size());
+//        System.out.println("week0 = " + weeks.get(0).getTeams());
+//        System.out.println("week1 = " + weeks.get(1).getTeams());
+//    }
+
+  @Test
+  public void getPaths() {
+    instance.setYear(2019);
+    instance.setWeeks(ap.getWeeks(2019).collect(Collectors.toList()));
+    List<Path> paths = instance.getPaths();
+  }
+
+  @Test
+  public void getMichiganWeek0_2019() {
+
+    instance.setYear(2019);
+    Team team = new Team();
+    team.setName("Michigan");
+    team.getNames().add("Michigan");
+    Team opp = instance.getOpponent(0, team);
+    LOG.info("Opponent: " + opp.getName());
+    assertThat(opp.getName(), is("Middle Tennessee"));
+  }
 
 
-    @AfterClass
-    public static void tearDownClass() {
-    }
+  @Test
+  public void michiganStateWeek0_2019() {
 
+    instance.setYear(2019);
+    Team team = new Team();
+    team.setName("Michigan St.");
+    team.getNames().add("Michigan St.");
+    team.getNames().add("Michigan State");
+    Team opp = instance.getOpponent(0, team);
+    LOG.info("Opponent: " + opp.getName());
+    assertThat(opp.getName(), is("Tulsa"));
+  }
 
-    @Before
-    public void setUp() {
-    }
+  @Test
+  public void ohioStateWeek0_2019() {
 
-
-    @After
-    public void tearDown() {
-    }
-
-
-    @Test
-    public void LSU_Week1() {
-
-        final String teamName = "LSU";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(0, team);
-        assertEquals("Wisconsin", opponent.getName());
-    }
-
-
-    @Test
-    public void Wisconsin_Week1() {
-
-        final String teamName = "Wisconsin";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(0, team);
-        assertEquals("LSU", opponent.getName());
-    }
-
-
-    @Test
-    public void Wisconsin_Week2() {
-
-        final String teamName = "Wisconsin";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(1, team);
-        assertEquals("Akron", opponent.getName());
-    }
-
-
-    @Test
-    public void Michigan_Week2() {
-
-        final String teamName = "Michigan";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(1, team);
-        assertEquals("UCF", opponent.getName());
-    }
-
-
-    @Test
-    public void Alabama_Week2() {
-
-        final String teamName = "Alabama";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(1, team);
-        assertEquals("Western Kentucky", opponent.getName());
-
-//        Game game = instance.getGame(1, team);
-//        System.out.println("" + game);
-    }
-
-
-    //  // @Test
-    public void getRecordFloridaState() {
-
-        final String teamName = "Florida State";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        String record = instance.getRecord(1, team);
-        assertNotNull(record);
-        LOG.info(record);
-        assertEquals("2 - 1", record);
-
-    }
-
-
-    @Test
-    public void MichiganState_Week1() {
-
-        final String teamName = "Michigan State";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(0, team);
-        assertEquals("Furman", opponent.getName());
-
-//        Game game = instance.getGame(0, team);
-//        System.out.println("" + game);
-    }
-
-
-    @Test
-    public void MichiganState_Week4() {
-
-        final String teamName = "Michigan State";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(3, team);
-        assertEquals("Wisconsin", opponent.getName());
-
-//        Game game = instance.getGame(3, team);
-//        System.out.println("" + game);
-    }
-
-
-  //  @Test
-    public void Mississippi_Week4() {
-
-        final String teamName = "Mississippi";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(3, team);
-        assertEquals("Georgia", opponent.getName());
-
-//        Game game = instance.getGame(3, team);
-//        System.out.println("" + game);
-    }
-
-
-   // @Test
-    public void Miami_Florida() {
-
-        final String teamName = "Miami (FL)";
-        Jedis j = pool.getResource();
-        Team team = new GetTeamCommand(teamName, j).execute();
-        pool.returnResource(j);
-        assertEquals(teamName, team.getName());
-
-        AP_View instance = new AP_View(2016);
-        instance.setGp(gp);
-        instance.setTp(tp);
-
-        Team opponent = instance.getOpponent(5, team);
-        assertEquals("Florida State", opponent.getName());
-
-    }
-
+    instance.setYear(2019);
+    Team team = new XTeam();
+    team.setName("Ohio St.");
+    team.getNames().add("Ohio St.");
+    team.getNames().add("Ohio State");
+    LOG.info(team.toString());
+    Team opp = instance.getOpponent(0, team);
+    LOG.info("Opponent: " + opp);
+    assertThat(opp.getName(), is("Florida Atlantic"));
+  }
 
 }

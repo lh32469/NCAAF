@@ -4,6 +4,8 @@ redisPort: 6388
 redisPass: welcome1
 basePath: "/ncaaf"
 
+ravenDB: http://dell-4290.local:5050
+
 # the only required property is resourcePackage, for more config options see below
 # resourcePackage is comma delimited list of packages
 swagger:

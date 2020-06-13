@@ -1,6 +1,8 @@
 package org.gpc4j.ncaaf;
 
-import com.google.common.base.Strings;
+import org.gpc4j.ncaaf.jaxb.Game;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -9,10 +11,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.gpc4j.ncaaf.jaxb.Game;
-import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
 
 
 /**
@@ -46,6 +44,8 @@ public class XGame extends Game {
         setVisitorRank(g.getVisitorRank());
         setVisitorScore(g.getVisitorScore());
         setDate(g.getDate());
+        setSeason(g.getSeason());
+        setWeek(g.getWeek());
         setId(g.getId());
         setKey(g.getKey());
     }
@@ -114,26 +114,8 @@ public class XGame extends Game {
     }
 
 
-    public void saveGame(Jedis jedis) {
-        final String key = "game." + year + "." + getId();
-        safeSet(jedis, key, "home", getHome());
-        safeSet(jedis, key, "homeRank", getHomeRank());
-        safeSet(jedis, key, "homeScore", getHomeScore());
-        safeSet(jedis, key, "visitor", getVisitor());
-        safeSet(jedis, key, "visitorRank", getVisitorRank());
-        safeSet(jedis, key, "visitorScore", getVisitorScore());
-        safeSet(jedis, key, "date", getDate());
-    }
 
 
-    /**
-     * Sets the field in the key only if the field is not null or empty.
-     */
-    void safeSet(Jedis jedis, String key, String field, String val) {
-        if (!Strings.isNullOrEmpty(val)) {
-            jedis.hset(key, field, val);
-        }
-    }
 
 
     /**

@@ -20,7 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.gpc4j.ncaaf.GamesProvider;
+import org.gpc4j.ncaaf.providers.GamesProvider;
 import org.gpc4j.ncaaf.jaxb.Conference;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Games;

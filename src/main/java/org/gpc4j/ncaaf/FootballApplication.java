@@ -1,34 +1,38 @@
 package org.gpc4j.ncaaf;
 
+import ch.qos.logback.classic.AsyncAppender;
+import ch.qos.logback.classic.Logger;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.gpc4j.ncaaf.redis.RedisGamesProvider;
-import org.gpc4j.ncaaf.resources.AP;
-import org.zapodot.hystrix.bundle.HystrixBundle;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.AsyncAppender;
-import ch.qos.logback.classic.Logger;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.dropwizard.assets.AssetsBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
-import java.util.HashMap;
-import java.util.Map;
+import net.ravendb.client.documents.DocumentStore;
+import net.ravendb.client.documents.IDocumentStore;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.message.MessageProperties;
 import org.glassfish.jersey.server.ServerProperties;
+import org.gpc4j.ncaaf.providers.GamesProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
+import org.gpc4j.ncaaf.ravendb.RavenGamesProvider;
+import org.gpc4j.ncaaf.ravendb.RavenTeamProvider;
+import org.gpc4j.ncaaf.resources.AP;
 import org.gpc4j.ncaaf.resources.GamesResource;
-import org.gpc4j.ncaaf.resources.UpdateSchedule;
+import org.gpc4j.ncaaf.views.AP_View;
 import org.gpc4j.ncaaf.writers.GameWriter;
 import org.gpc4j.ncaaf.writers.GamesWriter;
+import org.slf4j.LoggerFactory;
+import org.zapodot.hystrix.bundle.HystrixBundle;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -82,7 +86,6 @@ public class FootballApplication extends Application<FootballConfiguration> {
 
         JerseyEnvironment jersey = env.jersey();
         jersey.register(AP.class);
-        jersey.register(UpdateSchedule.class);
         jersey.register(GamesResource.class);
         jersey.register(GamesWriter.class);
         jersey.register(GameWriter.class);
@@ -122,19 +125,19 @@ public class FootballApplication extends Application<FootballConfiguration> {
         @Override
         protected void configure() {
 
-            JedisPoolConfig cfg = new JedisPoolConfig();
-            cfg.setMaxTotal(25);
-            cfg.setMinIdle(10);
-            cfg.setTestWhileIdle(true);
-            JedisPool pool = new JedisPool(cfg, config.getRedisHost(),
-                    config.getRedisPort(), 0, config.getRedisPass(), 10);
-//            JedisPool pool = new JedisPool(cfg, config.getRedisHost(),
-//                    config.getRedisPort());
+            bindAsContract(AP_View.class);
+            bindAsContract(PollProvider.class);
 
-            bind(pool);
+            IDocumentStore store
+                = new DocumentStore(config.getRavenDB(), "NCAAF");
 
-            bind(new RedisGamesProvider(pool)).to(GamesProvider.class);
-            bind(new TeamProvider(pool));
+            store.initialize();
+
+            bind(store).to(IDocumentStore.class);
+
+            bind(RavenGamesProvider.class).to(GamesProvider.class);
+            bind(RavenTeamProvider.class).to(TeamProvider.class);
+
         }
 
 

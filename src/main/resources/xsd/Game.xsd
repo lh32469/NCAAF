@@ -11,48 +11,60 @@
            targetNamespace="http://jaxb.ncaaf.gpc4j.org"
            elementFormDefault="qualified">
   
-    <xs:element name="game" type="game" />
+  <xs:element name="game" type="game" />
     
-    <xs:element name="games">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="game"
-                            maxOccurs="unbounded"
-                            type="game"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-   
-    <xs:complexType name="game">
-        <xs:sequence>
-            <xs:element name="visitor"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="visitorRank"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="visitorScore"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="home"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="homeRank"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="homeScore"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="date"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="id"
-                        maxOccurs="1"
-                        type="xs:string"/>
-            <xs:element name="key"
-                        maxOccurs="1"
-                        type="xs:string"/>
-        </xs:sequence>
+  <xs:element name="games">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="game"
+                    maxOccurs="unbounded"
+                    type="game"/>
+      </xs:sequence>
     </xs:complexType>
+  </xs:element>
+   
+  <xs:complexType name="game">
+    <xs:sequence>
+      <xs:element name="visitor"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="visitorRank"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="visitorScore"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="home"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="homeRank"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="homeScore"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="season"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="week"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="date"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="id"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="espnId"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="key"
+                  maxOccurs="1"
+                  type="xs:string"/>
+      <xs:element name="bowl"
+                  maxOccurs="1"
+                  type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
 
 </xs:schema>

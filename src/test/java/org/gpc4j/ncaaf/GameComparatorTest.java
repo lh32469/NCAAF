@@ -1,17 +1,11 @@
 package org.gpc4j.ncaaf;
 
 import org.gpc4j.ncaaf.jaxb.Game;
-import org.gpc4j.ncaaf.jaxb.Team;
-import org.gpc4j.ncaaf.redis.RedisGamesProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -20,43 +14,8 @@ import redis.clients.jedis.JedisPoolConfig;
  */
 public class GameComparatorTest {
 
-    private static GamesProvider GP;
-
-    private static TeamProvider TP;
-
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GameComparatorTest.class);
-
-
-    public GameComparatorTest() {
-    }
-
-
-    @BeforeClass
-    public static void setUpClass() {
-        JedisPoolConfig cfg = new JedisPoolConfig();
-
-        JedisPool pool = new JedisPool(cfg, "macmini.local",
-                6388, 0, "welcome1", 10, "JUnit");
-
-        GP = new RedisGamesProvider(pool);
-        TP = new TeamProvider(pool);
-    }
-
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-
-    @Before
-    public void setUp() {
-    }
-
-
-    @After
-    public void tearDown() {
-    }
 
 
     @Test
@@ -124,26 +83,26 @@ public class GameComparatorTest {
     }
 
 
-    @Test
-    public void CincinnatiAtMichigan() {
-
-        GameComparator instance = new GameComparator();
-
-        Team team = new Team();
-        team.setName("Michigan");
-        Game g1 = GP.getGame(team, 2017, 1).get();
-
-        team.setName("Cincinnati");
-        Game g2 = GP.getGame(team, 2017, 1).get();
-
-        // Same Game
-        int result = instance.compare(g1, g2);
-        LOG.info(g1.toString());
-        LOG.info(g2.toString());
-        LOG.info("Result: " + result);
-        assertTrue("Dates out of order", result == 0);
-
-    }
+//    @Test
+//    public void CincinnatiAtMichigan() {
+//
+//        GameComparator instance = new GameComparator();
+//
+//        Team team = new Team();
+//        team.setName("Michigan");
+//        Game g1 = GP.getGame(team, 2017, 1).get();
+//
+//        team.setName("Cincinnati");
+//        Game g2 = GP.getGame(team, 2017, 1).get();
+//
+//        // Same Game
+//        int result = instance.compare(g1, g2);
+//        LOG.info(g1.toString());
+//        LOG.info(g2.toString());
+//        LOG.info("Result: " + result);
+//        assertTrue("Dates out of order", result == 0);
+//
+//    }
 
 
 }

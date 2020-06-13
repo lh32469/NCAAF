@@ -1,4 +1,4 @@
-package org.gpc4j.ncaaf;
+package org.gpc4j.ncaaf.providers;
 
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
@@ -19,13 +19,18 @@ public interface GamesProvider {
 
   Optional<Game> getGame(Team team, Integer year, int week);
 
-  Game lastGameOfYear(String teamName, Integer year);
-
-  Optional<Game> gameWithNoDate(String teamName, Integer keyYear);
+  /**
+   * Get the Game for the named Team for the given season and week.
+   */
+  Optional<Game> getGame(String teamName, int season, int week);
 
   Stream<Game> byTeamAndYear(String teamName, Integer year);
 
   Stream<Game> gamesPlayed(String teamName, Integer year);
 
-  Optional<Game> getNextGame(String teamName, int year);
+  /**
+   * Get the opposing Team's name for the given season and week.
+   */
+  Optional<String> getOpponent(String teamName, int season, int week);
+
 }
