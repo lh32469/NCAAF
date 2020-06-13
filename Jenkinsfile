@@ -55,6 +55,8 @@ pipeline {
         script {
           image = docker.build registry + ":$BUILD_NUMBER"
         }
+        // Cleanup Maven target directory
+        sh 'rm -rf target'
       }
     }
 
