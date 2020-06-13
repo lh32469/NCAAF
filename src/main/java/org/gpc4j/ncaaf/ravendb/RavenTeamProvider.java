@@ -2,7 +2,7 @@ package org.gpc4j.ncaaf.ravendb;
 
 import net.ravendb.client.documents.IDocumentStore;
 import net.ravendb.client.documents.session.IDocumentSession;
-import org.gpc4j.ncaaf.TeamProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
 import org.gpc4j.ncaaf.XTeam;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.slf4j.LoggerFactory;

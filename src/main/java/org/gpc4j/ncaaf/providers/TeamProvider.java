@@ -1,4 +1,4 @@
-package org.gpc4j.ncaaf;
+package org.gpc4j.ncaaf.providers;
 
 import org.gpc4j.ncaaf.jaxb.Team;
 

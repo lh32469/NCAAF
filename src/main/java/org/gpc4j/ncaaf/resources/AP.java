@@ -1,12 +1,11 @@
 package org.gpc4j.ncaaf.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.PollProvider;
-import org.gpc4j.ncaaf.TeamProvider;
 import org.gpc4j.ncaaf.XTeam;
-import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Week;
+import org.gpc4j.ncaaf.providers.GamesProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
 import org.gpc4j.ncaaf.ravendb.dto.Poll;
 import org.gpc4j.ncaaf.views.AP_View;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

@@ -19,6 +19,8 @@ import net.ravendb.client.documents.IDocumentStore;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.message.MessageProperties;
 import org.glassfish.jersey.server.ServerProperties;
+import org.gpc4j.ncaaf.providers.GamesProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
 import org.gpc4j.ncaaf.ravendb.RavenGamesProvider;
 import org.gpc4j.ncaaf.ravendb.RavenTeamProvider;
 import org.gpc4j.ncaaf.resources.AP;

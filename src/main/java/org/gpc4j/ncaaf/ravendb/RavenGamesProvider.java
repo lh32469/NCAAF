@@ -1,18 +1,22 @@
 package org.gpc4j.ncaaf.ravendb;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Strings;
 import net.ravendb.client.documents.IDocumentStore;
 import net.ravendb.client.documents.session.IDocumentSession;
-import org.gpc4j.ncaaf.GamesProvider;
 import org.gpc4j.ncaaf.XGame;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
+import org.gpc4j.ncaaf.providers.GamesProvider;
 import org.gpc4j.ncaaf.ravendb.dto.ScoreBoard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,19 +59,27 @@ public class RavenGamesProvider implements GamesProvider {
    * @return
    */
   private static Predicate<Game> team(String teamName) {
-    return g -> {
+    return g -> teamNameMatch(teamName).test(g.getHome())
+        || teamNameMatch(teamName).test(g.getVisitor());
+  }
 
-      boolean state = g.getHome().equals(teamName)
-          || g.getVisitor().equals(teamName);
+  /**
+   * Check if the teamName provided matches the other team name accounting
+   * for substitutions such as St. for State.
+   */
+  static Predicate<String> teamNameMatch(String teamName) {
+    return name -> {
 
+      boolean state = name.equals(teamName);
       String abbrev = teamName
           .replaceAll("State", "St.");
-      boolean st = g.getHome().equals(abbrev)
-          || g.getVisitor().equals(abbrev);
+
+      boolean st = name.equals(abbrev);
 
       return st || state;
     };
   }
+
 
   @Inject
   IDocumentStore docStore;
@@ -86,7 +98,7 @@ public class RavenGamesProvider implements GamesProvider {
           .toList();
 
       List<Game> games = scoreboards.stream()
-          .flatMap(ScoreBoard::getGames)
+          .flatMap(this::getGames)
           .collect(Collectors.toList());
 
       return games.parallelStream().map(clone);
@@ -115,15 +127,6 @@ public class RavenGamesProvider implements GamesProvider {
     return getGame(team.getName(), year, week);
   }
 
-  @Override
-  public Game lastGameOfYear(String teamName, Integer year) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public Optional<Game> gameWithNoDate(String teamName, Integer keyYear) {
-    return Optional.empty();
-  }
 
   @Override
   public Stream<Game> byTeamAndYear(String teamName, Integer season) {
@@ -133,16 +136,28 @@ public class RavenGamesProvider implements GamesProvider {
 
   @Override
   public Stream<Game> gamesPlayed(String teamName, Integer year) {
-    return byTeamAndYear(teamName,year)
+    return byTeamAndYear(teamName, year)
         .filter(played(year));
   }
 
   @Override
-  public Optional<Game> getNextGame(String teamName, int year) {
-    throw new UnsupportedOperationException("Not implemented");
+  public Optional<String> getOpponent(String teamName, int season, int week) {
+    Optional<Game> optionalGame = getGame(teamName, season, week);
+    if (optionalGame.isPresent()) {
+      Game game = optionalGame.get();
+      if (teamNameMatch(teamName).test(game.getVisitor())) {
+        return Optional.of(game.getHome());
+      } else {
+        return Optional.of(game.getVisitor());
+      }
+    } else {
+      return Optional.empty();
+    }
   }
 
-  public Optional<Game> getGame(String teamName, Integer season, int week) {
+
+  @Override
+  public Optional<Game> getGame(String teamName, int season, int week) {
 
     LOG.debug(teamName + "," + season + "," + week);
 
@@ -152,7 +167,7 @@ public class RavenGamesProvider implements GamesProvider {
 
     if (week < 10) {
       _week = "0" + week;
-    } else if (week == 15) {
+    } else if (week == 77) {
       _week = "P";
     } else {
       _week = String.valueOf(week);
@@ -183,7 +198,7 @@ public class RavenGamesProvider implements GamesProvider {
           .toList();
 
       List<Game> games = scoreboards.stream()
-          .flatMap(ScoreBoard::getGames)
+          .flatMap(this::getGames)
           .collect(Collectors.toList());
 
       this.games.put(season, games);
@@ -191,5 +206,59 @@ public class RavenGamesProvider implements GamesProvider {
       return games.parallelStream().map(clone);
     }
 
+  }
+
+
+  Stream<Game> getGames(ScoreBoard scoreBoard) {
+
+    final String[] array = scoreBoard.getId().split("\\.");
+    final String season = array[1];
+    String week = array[2];
+
+    if ("P".equals(week)) {
+      week = "16";
+    }
+
+    List<Game> results = new LinkedList<>();
+    ObjectMapper mapper = new ObjectMapper();
+
+    JsonNode jsonNode = mapper.valueToTree(scoreBoard);
+    ArrayNode games = (ArrayNode) jsonNode.get("games");
+
+    for (JsonNode node : games) {
+      final JsonNode game = node.get("game");
+      final JsonNode home = game.get("home");
+      final JsonNode away = game.get("away");
+
+      Game g = new Game();
+      g.setId(game.get("gameID").textValue());
+      g.setSeason(season);
+      g.setWeek(week);
+
+      g.setHome(home
+          .get("names").get("short")
+          .textValue().trim());
+      g.setHomeScore(home
+          .get("score")
+          .textValue().trim());
+      g.setHomeRank(home
+          .get("rank")
+          .textValue().trim());
+
+      g.setVisitor(away
+          .get("names").get("short")
+          .textValue().trim());
+      g.setVisitorScore(away
+          .get("score")
+          .textValue());
+      g.setVisitorRank(away
+          .get("rank")
+          .textValue().trim());
+
+      //System.out.println("Game = " + new XGame(g));
+      results.add(g);
+    }
+
+    return results.stream();
   }
 }
