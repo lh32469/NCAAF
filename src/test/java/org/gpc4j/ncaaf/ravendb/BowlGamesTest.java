@@ -5,8 +5,8 @@ import net.ravendb.client.documents.IDocumentStore;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.gpc4j.ncaaf.GamesProvider;
-import org.gpc4j.ncaaf.TeamProvider;
+import org.gpc4j.ncaaf.providers.GamesProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.junit.BeforeClass;
@@ -41,17 +41,16 @@ public class BowlGamesTest {
     final AbstractBinder binder = new AbstractBinder() {
       @Override
       public void configure() {
-        LOG.info("Configured");
         bindAsContract(TeamProvider.class);
-
-        gp = new RavenGamesProvider();
-        bind(gp).to(GamesProvider.class);
         bind(store).to(IDocumentStore.class);
       }
     };
 
     ServiceLocator locator = ServiceLocatorUtilities.bind(binder);
+    gp = new RavenGamesProvider();
     locator.inject(gp);
+
+    LOG.info("Configured");
   }
 
 
@@ -59,7 +58,7 @@ public class BowlGamesTest {
   public void orangeBowlWisconsin_2017() {
     Team team = new Team();
     team.setName("Wisconsin");
-    Game game = gp.getGame(team, 2017, 14).get();
+    Game game = gp.getGame(team, 2017, 15).get();
     LOG.info(game.toString());
     assertThat(game.getHome(), is("Miami (FL)"));
     assertThat(game.getVisitor(), is("Wisconsin"));
@@ -70,7 +69,7 @@ public class BowlGamesTest {
   public void orangeBowlMiami_2017() {
     Team team = new Team();
     team.setName("Miami (FL)");
-    Game game = gp.getGame(team, 2017, 14).get();
+    Game game = gp.getGame(team, 2017, 15).get();
     LOG.info(game.toString());
     assertThat(game.getHome(), is("Miami (FL)"));
     assertThat(game.getVisitor(), is("Wisconsin"));
@@ -81,7 +80,7 @@ public class BowlGamesTest {
   public void roseBowlGeorgia_2018() {
     Team team = new Team();
     team.setName("Georgia");
-    Game game = gp.getGame(team, 2017, 14).get();
+    Game game = gp.getGame(team, 2017, 15).get();
     LOG.info(game.toString());
     assertThat(game.getHome(), is("Oklahoma"));
     assertThat(game.getVisitor(), is("Georgia"));
@@ -92,7 +91,7 @@ public class BowlGamesTest {
   public void roseBowlOklahoma_2018() {
     Team team = new Team();
     team.setName("Oklahoma");
-    Game game = gp.getGame(team, 2017, 14).get();
+    Game game = gp.getGame(team, 2017, 15).get();
     LOG.info(game.toString());
     assertThat(game.getHome(), is("Oklahoma"));
     assertThat(game.getVisitor(), is("Georgia"));
@@ -103,7 +102,7 @@ public class BowlGamesTest {
   public void sugarBowlClemson_2018() {
     Team team = new Team();
     team.setName("Clemson");
-    Game game = gp.getGame(team, 2017, 14).get();
+    Game game = gp.getGame(team, 2017, 15).get();
     LOG.info(game.toString());
     assertThat(game.getHome(), is("Clemson"));
     assertThat(game.getVisitor(), is("Alabama"));
@@ -114,7 +113,7 @@ public class BowlGamesTest {
   public void sugarBowlAlabama_2018() {
     Team team = new Team();
     team.setName("Alabama");
-    Game game = gp.getGame(team, 2017, 14).get();
+    Game game = gp.getGame(team, 2017, 15).get();
     LOG.info(game.toString());
     assertThat(game.getHome(), is("Clemson"));
     assertThat(game.getVisitor(), is("Alabama"));

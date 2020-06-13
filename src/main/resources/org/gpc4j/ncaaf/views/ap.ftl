@@ -35,12 +35,15 @@
 
             <#list weeks as week>
                 <#if week.number = 13>
-                    <text x="${(week.XPos-10)?c}" y="25" fill="black">Conf Championships
+                    <text x="${(week.XPos-10)?c}" y="25" fill="black">Division Championships
                     </text>
                 <#elseIf week.number = 14>
-                    <text x="${week.XPos?c}" y="25" fill="black">Bowl Games
+                    <text x="${week.XPos?c}" y="25" fill="black">Conference Championships
                     </text>
                 <#elseIf week.number = 15>
+                    <text x="${week.XPos?c}" y="25" fill="black">Bowl Games
+                    </text>
+                <#elseIf week.number = 16>
                     <text x="${(week.XPos-10)?c}" y="25" fill="black">Final Results
                     </text>
                 <#else>
@@ -67,7 +70,7 @@
                            xlink:href="${team.image}" >
                         <title role="tooltip">${team.name} (${place}) ${record}</title>
                     </image>
-                    <#if week.number < 14>
+                    <#if week.number < 16>
                         <image x="${(team.CX+100)?c}"
                                y="${(team.CY+20)?c}"
                                width="40"

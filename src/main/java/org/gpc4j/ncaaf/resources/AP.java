@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import org.gpc4j.ncaaf.PollProvider;
 import org.gpc4j.ncaaf.XTeam;
 import org.gpc4j.ncaaf.jaxb.Week;
-import org.gpc4j.ncaaf.providers.GamesProvider;
 import org.gpc4j.ncaaf.providers.TeamProvider;
 import org.gpc4j.ncaaf.ravendb.dto.Poll;
 import org.gpc4j.ncaaf.views.AP_View;
@@ -33,9 +32,6 @@ public class AP {
 
     @Inject
     private PollProvider rp;
-
-    @Inject
-    private GamesProvider gp;
 
     @Inject
     private TeamProvider tp;

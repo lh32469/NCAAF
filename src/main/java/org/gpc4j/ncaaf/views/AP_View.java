@@ -14,8 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.gpc4j.ncaaf.GamesProvider;
-import org.gpc4j.ncaaf.TeamProvider;
+import org.gpc4j.ncaaf.providers.GamesProvider;
+import org.gpc4j.ncaaf.providers.TeamProvider;
 import org.gpc4j.ncaaf.XTeam;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Path;
@@ -98,17 +98,6 @@ public class AP_View extends View {
             LOG.debug("Week: " + i + " = " + date);
         }
     }
-
-
-    public void setTp(TeamProvider tp) {
-        this.tp = tp;
-    }
-
-
-    public void setGp(GamesProvider gp) {
-        this.gp = gp;
-    }
-
 
     public List<Week> getWeeks() {
         LOG.info(weeks.size() + "");
@@ -288,23 +277,10 @@ public class AP_View extends View {
 
     public Team getOpponent(int week, Team team) {
 
-        Optional<Game> opt = gp.getGame(team, year, week);
+        Optional<String> opponent = gp.getOpponent(team.getName(),year,week);
 
-        if (opt.isPresent()) {
-            Game game = opt.get();
-
-            final String home = game.getHome();
-            final String visitor = game.getVisitor();
-
-            if (home.equals(team.getName())) {
-                LOG.debug("Found Home: " + visitor + " @ " + home);
-                //LOG.info(game.toString());
-                return tp.getTeam(visitor);
-            } else {
-                LOG.debug("Found Vistor: " + visitor + " @ " + home);
-                // LOG.info(game.toString());
-                return tp.getTeam(home);
-            }
+        if (opponent.isPresent()) {
+            return tp.getTeam(opponent.get());
         } else {
             Team t = new XTeam();
             t.setName("Unknown");
