@@ -100,8 +100,10 @@ pipeline {
     }
 
   }
+
   post {
     always {
+      // Cleanup Jenkins workspace
       cleanWs()
     }
   }
