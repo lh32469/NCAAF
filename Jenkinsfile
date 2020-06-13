@@ -58,18 +58,6 @@ pipeline {
       }
     }
 
-    stage('Cleanup') {
-      agent {
-        docker {
-          reuseNode true
-          image 'maven:latest'
-        }
-      }
-      steps {
-        sh 'mvn -B clean'
-      }
-    }
-
     stage('Stop Existing Docker') {
       steps {
         sh "docker stop $project-$branch || true && docker rm $project-$branch || true"
@@ -111,6 +99,11 @@ pipeline {
       }
     }
 
+  }
+  post {
+    always {
+      cleanWs()
+    }
   }
 
 }
