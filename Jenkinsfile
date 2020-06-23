@@ -47,14 +47,20 @@ pipeline {
 
     stage('Build New Docker') {
       environment {
-        registry = "$project/$branch"
         registryCredential = 'dockerhub'
       }
       steps {
         sh 'ls -l target'
         script {
-          image = docker.build registry + ":$BUILD_NUMBER"
+          image = docker.build("$project/$branch:$BUILD_NUMBER \
+              --label app.name=$project \
+              --label branch=$branch")
         }
+        // Cleanup previous images older than 12 hours
+        sh "docker image prune -af \
+              --filter label=app.name=$project \
+              --filter label=branch=$branch \
+              --filter until=12h"
       }
     }
 
