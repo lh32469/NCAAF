@@ -64,29 +64,37 @@ pipeline {
       }
     }
 
-    stage('Stop Existing Docker') {
-      steps {
-        sh "docker stop $project-$branch || true && docker rm $project-$branch || true"
-      }
-    }
-
     stage('Start New Docker') {
       steps {
         sh 'docker run -d -p 9020 ' +
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
-            "--name $project-$branch " +
+            "--name $project-$branch-$BUILD_NUMBER " +
             "$project/$branch:$BUILD_NUMBER"
       }
     }
 
-    stage('Register Consul Service') {
+    stage('Test New Docker') {
+      steps {
+        sh "sleep 10"
+        script {
+          ip = sh(
+              returnStdout: true,
+              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+          )
+          // Test new Docker instance directly
+          sh(script: "curl -f $ip:9020/$project/$branch/application.wadl")
+        }
+      }
+    }
+
+    stage('Register New Service') {
       steps {
         script {
           consul = "http://127.0.0.1:8500/v1/agent/service/register"
           ip = sh(
               returnStdout: true,
-              script: "docker inspect $project-$branch | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
           def service = readJSON text: '{ "Port": 9020 }'
           service["Address"] = ip.toString().trim() replaceAll("\"", "");
@@ -95,6 +103,12 @@ pipeline {
           sh(script: "cat service.json")
           sh(script: "curl -X PUT -d @service.json " + consul)
         }
+      }
+    }
+
+    stage('Stop Previous Docker') {
+      steps {
+        sh "docker stop $project-$branch || true && docker rm $project-$branch || true"
       }
     }
 
