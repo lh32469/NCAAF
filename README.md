@@ -8,7 +8,6 @@ Viewable at:
    
    http://www.gpc4j.org/ncaaf/ap/2017
    
-   http://www.gpc4j.org/ncaaf/ap/2016
 
 Swagger UI at:
 
