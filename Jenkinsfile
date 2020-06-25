@@ -1,6 +1,7 @@
 // project should be the last token of the Git repo URL in lowercase.
 def project = "ncaaf"
 def branch = BRANCH_NAME.toLowerCase()
+def port = "9020"
 
 pipeline {
 
@@ -64,31 +65,40 @@ pipeline {
       }
     }
 
-    stage('Stop Existing Docker') {
-      steps {
-        sh "docker stop $project-$branch || true && docker rm $project-$branch || true"
-      }
-    }
-
     stage('Start New Docker') {
       steps {
-        sh 'docker run -d -p 9020 ' +
+        sh "docker run -d -p $port " +
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
-            "--name $project-$branch " +
+            "--name $project-$branch-$BUILD_NUMBER " +
             "$project/$branch:$BUILD_NUMBER"
       }
     }
 
-    stage('Register Consul Service') {
+    stage('Test New Docker') {
+      steps {
+        sh "sleep 10"
+        script {
+          ip = sh(
+              returnStdout: true,
+              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+          )
+          // Test new Docker instance directly
+          url = ip.trim() + ":$port"
+          sh "curl -f ${url}/application.wadl > /dev/null"
+        }
+      }
+    }
+
+    stage('Register New Service') {
       steps {
         script {
           consul = "http://127.0.0.1:8500/v1/agent/service/register"
           ip = sh(
               returnStdout: true,
-              script: "docker inspect $project-$branch | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
-          def service = readJSON text: '{ "Port": 9020 }'
+          def service = readJSON text: "{ \"Port\": $port }"
           service["Address"] = ip.toString().trim() replaceAll("\"", "");
           service["Name"] = "$project-$branch".toString()
           writeJSON file: 'service.json', json: service, pretty: 3
@@ -98,13 +108,30 @@ pipeline {
       }
     }
 
-    stage('Test New Branch') {
+    stage('Stop Previous Docker') {
       steps {
-        sh "sleep 15"
-        sh "curl -f localhost/$project/$branch/application.wadl"
+        script {
+          // Get all matching containers except the most recent one
+          containers = sh(
+              returnStdout: true,
+              script: "docker ps -q --filter label=branch=$branch --filter label=app.name=$project | tail -n+2"
+          )
+          containers = containers.trim()
+          containers = containers.replace("\n", " ").replace("\r", " ");
+          if(!containers.isEmpty()) {
+            sh "docker stop $containers"
+            sh "docker rm $containers"
+          }
+        }
       }
     }
 
+    stage('Test Branch Path') {
+      steps {
+        // Test that NGINX regex location resolves correctly
+        sh "curl -f localhost/$project/$branch/application.wadl"
+      }
+    }
   }
 
   post {
