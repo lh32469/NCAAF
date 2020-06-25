@@ -1,6 +1,7 @@
 // project should be the last token of the Git repo URL in lowercase.
 def project = "ncaaf"
 def branch = BRANCH_NAME.toLowerCase()
+def port = "9020"
 
 pipeline {
 
@@ -66,7 +67,7 @@ pipeline {
 
     stage('Start New Docker') {
       steps {
-        sh 'docker run -d -p 9020 ' +
+        sh "docker run -d -p $port " +
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
             "--name $project-$branch-$BUILD_NUMBER " +
@@ -83,7 +84,7 @@ pipeline {
               script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
           // Test new Docker instance directly
-          url = ip.trim() + ":9020"
+          url = ip.trim() + ":$port"
           sh "curl -f ${url}/application.wadl"
         }
       }
@@ -97,7 +98,7 @@ pipeline {
               returnStdout: true,
               script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
-          def service = readJSON text: '{ "Port": 9020 }'
+          def service = readJSON text: "{ \"Port\": $port }"
           service["Address"] = ip.toString().trim() replaceAll("\"", "");
           service["Name"] = "$project-$branch".toString()
           writeJSON file: 'service.json', json: service, pretty: 3
