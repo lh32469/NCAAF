@@ -77,12 +77,15 @@ pipeline {
     stage('Test New Docker') {
       steps {
         sh "sleep 10"
-        ip = sh(
-            returnStdout: true,
-            script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
-        )
-        // Test new Docker instance directly
-        sh "curl -f $ip:9020/$project/$branch/application.wadl"
+        script {
+          ip = sh(
+              returnStdout: true,
+              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+          )
+          // Test new Docker instance directly
+          url = ip.trim() + ":9020"
+          sh "curl -f ${url}/application.wadl"
+        }
       }
     }
 
