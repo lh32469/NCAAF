@@ -85,7 +85,7 @@ pipeline {
           )
           // Test new Docker instance directly
           url = ip.trim() + ":$port"
-          sh "curl -f ${url}/application.wadl"
+          sh "curl -f ${url}/application.wadl > /dev/null"
         }
       }
     }
@@ -110,13 +110,25 @@ pipeline {
 
     stage('Stop Previous Docker') {
       steps {
-        sh "docker stop $project-$branch || true && docker rm $project-$branch || true"
+        script {
+          // Get all matching containers except the most recent one
+          containers = sh(
+              returnStdout: true,
+              script: "docker ps -q --filter label=branch=$branch --filter label=app.name=$project | tail -n+2"
+          )
+          containers = containers.trim()
+          containers = containers.replace("\n", " ").replace("\r", " ");
+          if(!containers.isEmpty()) {
+            sh "docker stop $containers"
+            sh "docker rm $containers"
+          }
+        }
       }
     }
 
     stage('Test New Branch') {
       steps {
-        sh "sleep 15"
+        sh "sleep 10"
         sh "curl -f localhost/$project/$branch/application.wadl"
       }
     }
