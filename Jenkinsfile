@@ -126,13 +126,12 @@ pipeline {
       }
     }
 
-    stage('Test New Branch') {
+    stage('Test Branch Path') {
       steps {
-        sh "sleep 10"
+        // Test that NGINX regex location resolves correctly
         sh "curl -f localhost/$project/$branch/application.wadl"
       }
     }
-
   }
 
   post {
