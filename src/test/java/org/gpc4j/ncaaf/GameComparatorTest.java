@@ -1,5 +1,6 @@
 package org.gpc4j.ncaaf;
 
+import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
 import org.gpc4j.ncaaf.redis.RedisGamesProvider;
@@ -7,7 +8,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+
+import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 import static org.junit.Assert.*;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
@@ -24,6 +28,12 @@ public class GameComparatorTest {
 
     private static TeamProvider TP;
 
+    @ClassRule
+    public static final DropwizardAppRule<FootballConfiguration> DROPWIZARD_APP_RULE =
+        new DropwizardAppRule<>(
+            FootballApplication.class,
+            resourceFilePath("test-config.yml"));
+
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GameComparatorTest.class);
 
@@ -36,8 +46,15 @@ public class GameComparatorTest {
     public static void setUpClass() {
         JedisPoolConfig cfg = new JedisPoolConfig();
 
-        JedisPool pool = new JedisPool(cfg, "macmini.local",
-                6388, 0, "welcome1", 10, "JUnit");
+        FootballConfiguration config = DROPWIZARD_APP_RULE.getConfiguration();
+
+        JedisPool pool = new JedisPool(cfg,
+            config.getRedisHost(),
+            config.getRedisPort(),
+            0,
+            config.getRedisPass(),
+            10,
+            "JUnit");
 
         GP = new RedisGamesProvider(pool);
         TP = new TeamProvider(pool);
