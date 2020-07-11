@@ -3,14 +3,19 @@ package org.gpc4j.ncaaf;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.gpc4j.ncaaf.jaxb.Game;
 import org.gpc4j.ncaaf.jaxb.Team;
+
+import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 import static org.hamcrest.core.Is.is;
 
 import org.gpc4j.ncaaf.redis.RedisGamesProvider;
 import org.junit.Assert;
 import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
@@ -23,11 +28,15 @@ import redis.clients.jedis.JedisPoolConfig;
  */
 public class GamesProviderTest {
 
-    private static JedisPool pool;
-
     private static GamesProvider gp;
 
     private static TeamProvider tp;
+
+    @ClassRule
+    public static final DropwizardAppRule<FootballConfiguration> DROPWIZARD_APP_RULE =
+        new DropwizardAppRule<>(
+            FootballApplication.class,
+            resourceFilePath("test-config.yml"));
 
     final static private org.slf4j.Logger LOG
             = LoggerFactory.getLogger(GamesProviderTest.class);
@@ -37,9 +46,15 @@ public class GamesProviderTest {
     public static void setUpClass() {
         JedisPoolConfig cfg = new JedisPoolConfig();
 
-        //  pool = new JedisPool(cfg, "localhost", 6379, 0, "welcome1", 10, "JUnit");
-        pool = new JedisPool(cfg, "macmini.local", 6388, 0, "welcome1", 10, "JUnit");
+        FootballConfiguration config = DROPWIZARD_APP_RULE.getConfiguration();
 
+        JedisPool pool = new JedisPool(cfg,
+            config.getRedisHost(),
+            config.getRedisPort(),
+            0,
+            config.getRedisPass(),
+            10,
+            "JUnit");
         gp = new RedisGamesProvider(pool);
         tp = new TeamProvider(pool);
     }

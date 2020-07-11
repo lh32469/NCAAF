@@ -14,7 +14,7 @@ swagger:
 
 server:
   applicationConnectors:
-  - type: http 
+  - type: http
     port: 9020
   adminConnectors:
   - type: http
