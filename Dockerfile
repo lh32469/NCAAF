@@ -1,10 +1,12 @@
-from openjdk:11
+FROM openjdk:11
 
 COPY target/ncaaf-*.jar /usr/src/ncaaf.jar
 COPY docker.yml         /usr/src
+COPY updateConsul.sh    /usr/src
+COPY runApp.sh          /usr/src
 WORKDIR                 /usr/src/
 
 EXPOSE 9020
 
-CMD ["java", "-jar", "ncaaf.jar", "server", "docker.yml" ]
+CMD ./updateConsul.sh;./runApp.sh
 
