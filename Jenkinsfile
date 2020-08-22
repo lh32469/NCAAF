@@ -2,6 +2,7 @@
 def project = "ncaaf"
 def branch = BRANCH_NAME.toLowerCase()
 def port = "9020"
+def hostname = project + "-" + branch + "-" + BUILD_NUMBER
 
 pipeline {
 
@@ -66,12 +67,13 @@ pipeline {
     }
 
     stage('Start New Docker') {
+      // Also registers hostname with Consul.io
       steps {
         sh "docker run -d -p $port " +
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
             "--name $project-$branch-$BUILD_NUMBER " +
-            "--hostname $project-$branch-$BUILD_NUMBER " +
+            "--hostname $hostname " +
             "$project/$branch:$BUILD_NUMBER"
       }
     }
@@ -85,7 +87,7 @@ pipeline {
               script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
           // Test new Docker instance directly
-          url = ip.trim() + ":$port"
+          url = hostname + ":$port"
           sh "curl -f ${url}/application.wadl > /dev/null"
         }
       }
