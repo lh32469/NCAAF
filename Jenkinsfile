@@ -82,10 +82,6 @@ pipeline {
       steps {
         sh "sleep 10"
         script {
-          ip = sh(
-              returnStdout: true,
-              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
-          )
           // Test new Docker instance directly
           url = hostname + ".service.consul:$port"
           sh "curl -f ${url}/application.wadl > /dev/null"
@@ -97,12 +93,9 @@ pipeline {
       steps {
         script {
           consul = "http://127.0.0.1:8500/v1/agent/service/register"
-          ip = sh(
-              returnStdout: true,
-              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
-          )
           def service = readJSON text: "{ \"Port\": $port }"
-          service["Address"] = ip.toString().trim() replaceAll("\"", "");
+          // Point to newly started and tested Docker instance
+          service["Address"] = hostname + ".service.consul"
           service["Name"] = "$project-$branch".toString()
           writeJSON file: 'service.json', json: service, pretty: 3
           sh(script: "cat service.json")
