@@ -71,6 +71,7 @@ pipeline {
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
             "--name $project-$branch-$BUILD_NUMBER " +
+            "--hostname $project-$branch-$BUILD_NUMBER " +
             "$project/$branch:$BUILD_NUMBER"
       }
     }
