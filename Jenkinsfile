@@ -87,7 +87,7 @@ pipeline {
               script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
           )
           // Test new Docker instance directly
-          url = hostname + ":$port"
+          url = hostname + ".service.consul:$port"
           sh "curl -f ${url}/application.wadl > /dev/null"
         }
       }
