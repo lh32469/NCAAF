@@ -19,5 +19,7 @@ curl -X PUT -d "{\
 	\"Address\": \"${IP}\" }" \
   http://${HOST}:8500/v1/agent/service/register
 
-java -jar ncaaf.jar server docker.yml
+java -jar ncaaf.jar server docker.yml &
+
+wait $!
 
