@@ -86,12 +86,17 @@ pipeline {
         sh "sleep 10"
         script {
           // Test new Docker instance directly
-          url = svcId + ".service.consul:$port"
+          ip = sh(
+              returnStdout: true,
+              script: "docker inspect $project-$branch-$BUILD_NUMBER | jq '.[].NetworkSettings.Networks.bridge.IPAddress'"
+          )
+          // Test new Docker instance directly
+          url = ip.trim() + ":$port"
           sh "curl -f ${url}/application.wadl > /dev/null"
         }
       }
     }
-
+    
     stage('Stop Previous Docker') {
       steps {
         script {
