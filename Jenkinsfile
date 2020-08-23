@@ -72,7 +72,7 @@ pipeline {
       // Also registers hostname with Consul.io
       steps {
         sh "docker run -d -p $port " +
-            "-e SERVICE=$svcName"
+            "-e SERVICE=$svcName "
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
             "--name $svcId " +
