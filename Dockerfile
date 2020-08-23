@@ -8,5 +8,5 @@ WORKDIR                 /usr/src/
 
 EXPOSE 9020
 
-CMD ./runApp.sh
+ENTRYPOINT ./runApp.sh
 
