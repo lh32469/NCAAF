@@ -7,8 +7,12 @@ COPY runApp.sh          /usr/src
 WORKDIR                 /usr/src/
 
 COPY S01consulRegistration /etc/rc3.d
+COPY S01consulRegistration /etc/rcS.d
+
+COPY S01consulRegistration /etc/rc0.d/K01consulRegistration
+COPY S01consulRegistration /etc/rc6.d/K01consulRegistration
 
 EXPOSE 9020
 
-CMD ./updateConsul.sh;./runApp.sh
+CMD ./runApp.sh
 
