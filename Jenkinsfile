@@ -71,7 +71,7 @@ pipeline {
     stage('Start New Docker') {
       // Also registers hostname with Consul.io
       steps {
-        sh "docker run -d -rm -p $port " +
+        sh "docker run -d --rm -p $port " +
             "-e SERVICE=$svcName " +
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
@@ -96,7 +96,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Stop Previous Docker') {
       steps {
         script {
