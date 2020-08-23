@@ -2,7 +2,9 @@
 def project = "ncaaf"
 def branch = BRANCH_NAME.toLowerCase()
 def port = "9020"
-def hostname = project + "-" + branch + "-" + BUILD_NUMBER
+def svcName = project + "-" + branch
+// Also hostname
+def svcId = svcName + "-" + BUILD_NUMBER
 
 pipeline {
 
@@ -70,10 +72,11 @@ pipeline {
       // Also registers hostname with Consul.io
       steps {
         sh "docker run -d -p $port " +
+            "-e SERVICE=$svcName"
             '--restart=always ' +
             '--dns=172.17.0.1 ' +
-            "--name $project-$branch-$BUILD_NUMBER " +
-            "--hostname $hostname " +
+            "--name $svcId " +
+            "--hostname $svcId " +
             "$project/$branch:$BUILD_NUMBER"
       }
     }
@@ -83,23 +86,8 @@ pipeline {
         sh "sleep 10"
         script {
           // Test new Docker instance directly
-          url = hostname + ".service.consul:$port"
+          url = svcId + ".service.consul:$port"
           sh "curl -f ${url}/application.wadl > /dev/null"
-        }
-      }
-    }
-
-    stage('Register New Service') {
-      steps {
-        script {
-          consul = "http://127.0.0.1:8500/v1/agent/service/register"
-          def service = readJSON text: "{ \"Port\": $port }"
-          // Point to newly started and tested Docker instance
-          service["Address"] = hostname + ".service.consul"
-          service["Name"] = "$project-$branch".toString()
-          writeJSON file: 'service.json', json: service, pretty: 3
-          sh(script: "cat service.json")
-          sh(script: "curl -X PUT -d @service.json " + consul)
         }
       }
     }
