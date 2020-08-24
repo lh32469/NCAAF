@@ -8,5 +8,6 @@ WORKDIR                 /usr/src/
 
 EXPOSE 9020
 
-ENTRYPOINT ./runApp.sh
+# Used exec fuctionality to run as PID 1 for Signal handling
+CMD ["./runApp.sh"]
 
