@@ -24,7 +24,7 @@ public class Status {
     } catch (UnknownHostException e) {
       builder.header("X-Error", e.toString());
     }
-    
+
     return builder.build();
 
   }

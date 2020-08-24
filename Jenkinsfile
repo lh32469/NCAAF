@@ -81,7 +81,7 @@ pipeline {
       }
     }
 
-    stage('Test New Docker') {
+    stage('Test/Register New Docker') {
       steps {
         sh "sleep 10"
         script {
