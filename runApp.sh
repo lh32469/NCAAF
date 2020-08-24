@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 trap deregister 1 2 3 6 15
 
