@@ -25,6 +25,7 @@ import org.gpc4j.ncaaf.ravendb.RavenGamesProvider;
 import org.gpc4j.ncaaf.ravendb.RavenTeamProvider;
 import org.gpc4j.ncaaf.resources.AP;
 import org.gpc4j.ncaaf.resources.GamesResource;
+import org.gpc4j.ncaaf.resources.Status;
 import org.gpc4j.ncaaf.views.AP_View;
 import org.gpc4j.ncaaf.writers.GameWriter;
 import org.gpc4j.ncaaf.writers.GamesWriter;
@@ -85,6 +86,7 @@ public class FootballApplication extends Application<FootballConfiguration> {
         appender.setIncludeCallerData(true);
 
         JerseyEnvironment jersey = env.jersey();
+        jersey.register(Status.class);
         jersey.register(AP.class);
         jersey.register(GamesResource.class);
         jersey.register(GamesWriter.class);
