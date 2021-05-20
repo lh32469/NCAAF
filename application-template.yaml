@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ncaaf-app
+  name: ncaaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ncaaf-app
+  strategy: { }
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ncaaf-app
+    spec:
+      hostAliases:
+        - ip: "192.168.5.220"
+          hostnames:
+            - "dell-4290.local"
+      containers:
+        - image: lh32469/ncaaf-BRANCH:BUILD
+          name: ncaaf
+          env:
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: "/"
+          resources:
+            limits:
+              cpu: "1.25"
+            requests:
+              cpu: ".25"
+          livenessProbe:
+            httpGet:
+              path: /application.wadl
+              port: 9020
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 15
+            periodSeconds: 5
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: ncaaf-service
+spec:
+  selector:
+    app: ncaaf-app
+  ports:
+    - port: 9020 # Default port for image
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ncaaf-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: HOSTNAME.gpc4j.org
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: ncaaf-service
+                port:
+                  number: 9020
+

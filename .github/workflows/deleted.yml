@@ -1,0 +1,47 @@
+name: Branch Deleted
+
+on:
+  delete:
+    branches:
+      - '*'
+
+jobs:
+  cleanup-kubernetes:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_NAME: weather
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Substitute Secrets
+        run: |
+          sed -e 's/KUBE_SERVER/${{ secrets.KUBE_SERVER }}/g' kube_config > config.1
+          sed -e 's/KUBE_TOKEN/${{ secrets.KUBE_TOKEN }}/g' config.1 > k_config
+          cat k_config
+
+      - name: Display Config
+        run: cat k_config
+
+      - name: Delete Namspace
+        env:
+          KUBECONFIG: ./k_config
+        run: kubectl delete namespace ${APP_NAME}-${{ github.event.ref }}
+
+  env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Print Environment Variables
+        run: env
+      - name: List Directory
+        env:
+          BRANCH: ${GITHUB_REF##*/}
+        run: ls -l
+      - name: Print Branch Name
+        env:
+          BRANCH: ${GITHUB_REF##*/}
+        run: echo BRANCH=${BRANCH}
