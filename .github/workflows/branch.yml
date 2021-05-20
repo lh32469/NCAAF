@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      APP_NAME: portfolio
+      APP_NAME: ncaaf
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -42,12 +42,17 @@ jobs:
           cat application.yaml
 
       # Step that does that actual cache save and restore
-      - uses: actions/cache@v1
+      - name: Cache LOcal Maven Repository
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-repo
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
       - name: Maven Package
         run: mvn -B -DskipTests package
