@@ -3,27 +3,27 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: ncaaf-app
-  name: ncaaf
+    app: portfolio-app
+  name: portfolio
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ncaaf-app
+      app: portfolio-app
   strategy: { }
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: ncaaf-app
+        app: portfolio-app
     spec:
       hostAliases:
         - ip: "192.168.5.220"
           hostnames:
             - "dell-4290.local"
       containers:
-        - image: lh32469/ncaaf-BRANCH:BUILD
-          name: ncaaf
+        - image: lh32469/portfolio-BRANCH:BUILD
+          name: portfolio
           env:
             - name: SERVER_SERVLET_CONTEXT_PATH
               value: "/"
@@ -34,8 +34,8 @@ spec:
               cpu: ".25"
           livenessProbe:
             httpGet:
-              path: /application.wadl
-              port: 9020
+              path: /ping
+              port: 8085
               httpHeaders:
                 - name: Custom-Header
                   value: Awesome
@@ -47,19 +47,19 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: ncaaf-service
+  name: portfolio-service
 spec:
   selector:
-    app: ncaaf-app
+    app: portfolio-app
   ports:
-    - port: 9020 # Default port for image
+    - port: 8085 # Default port for image
 
 ---
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ncaaf-ingress
+  name: portfolio-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
@@ -71,7 +71,7 @@ spec:
             path: /
             backend:
               service:
-                name: ncaaf-service
+                name: portfolio-service
                 port:
-                  number: 9020
+                  number: 8085
 

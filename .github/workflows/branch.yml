@@ -5,8 +5,8 @@ name: CI
 on:
   push:
     branches:
-     - '*'
-     - '!master'   # excludes master
+      - '*'
+      - '!master'   # excludes master
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      APP_NAME: weather
+      APP_NAME: portfolio
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,11 +31,15 @@ jobs:
           sed -e 's/KUBE_SERVER/${{ secrets.KUBE_SERVER }}/g' kube_config > config.1
           sed -e 's/KUBE_TOKEN/${{ secrets.KUBE_TOKEN }}/g' config.1 > k_config
           cat k_config
-          # Set hostname to App.Branch...
-          sed -e "s/HOSTNAME/${APP_NAME}\.${GITHUB_REF##*\/}/g" weather-template.yaml > weather.yaml
+          # Set hostname and Docker image to App/Branch/Build..
+          sed -e "s/HOSTNAME/${APP_NAME}\.${GITHUB_REF##*\/}/g" application-template.yaml > a1.yaml
+          sed -e "s/BRANCH/${GITHUB_REF##*\/}/g" a1.yaml > a2.yaml
+          sed -e "s/BUILD/${GITHUB_RUN_NUMBER}/g" a2.yaml > application.yaml
 
       - name: Display Config
-        run: cat k_config
+        run: |
+          cat k_config
+          cat application.yaml
 
       # Step that does that actual cache save and restore
       - uses: actions/cache@v1
@@ -45,24 +49,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-#      - name: Cache Maven packages
-#        uses: actions/cache@v2
-#        with:
-#          path: ~/.m2
-#          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: ${{ runner.os }}-m2
-
-#      - name: Maven Compile
-#        run: mvn -B compile
-
       - name: Maven Package
-        run: mvn -B -DskipTests package
+        run: mvn -B package
 
       - name: Docker Build
         env:
           BRANCH: ${GITHUB_REF##*/}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        run: docker build -t lh32469/weather-${GITHUB_REF##*/}:${GITHUB_RUN_NUMBER} .
+        run: docker build -t lh32469/${APP_NAME}-${GITHUB_REF##*/}:${GITHUB_RUN_NUMBER} .
 
       - name: Docker Login
         env:
@@ -71,13 +65,12 @@ jobs:
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
       - name: Push image to Docker Hub
-        run: docker push lh32469/weather-${GITHUB_REF##*/}:${GITHUB_RUN_NUMBER}
+        run: docker push lh32469/${APP_NAME}-${GITHUB_REF##*/}:${GITHUB_RUN_NUMBER}
 
       - name: Check existing Kubernetes Deployment
         id: deployment_check
         env:
           KUBECONFIG: ./k_config
-          # get -n weather-pipeline deployment/weather
         run: kubectl get -n ${APP_NAME}-${GITHUB_REF##*/} deployment/${APP_NAME}
         continue-on-error: true
 
@@ -87,12 +80,11 @@ jobs:
           KUBECONFIG: ./k_config
         run: |
           kubectl create namespace ${APP_NAME}-${GITHUB_REF##*/}
-          kubectl apply -f weather.yaml -n ${APP_NAME}-${GITHUB_REF##*/}
+          kubectl apply -f application.yaml -n ${APP_NAME}-${GITHUB_REF##*/}
 
       - name: Deploy new image to Kubernetes
         env:
           KUBECONFIG: ./k_config
-          # set image -n weather-pipeline deployment/weather weather=lh32469/weather-pipeline:42
         run: >
           kubectl set image -n ${APP_NAME}-${GITHUB_REF##*/} deployment/${APP_NAME}
           ${APP_NAME}=lh32469/${APP_NAME}-${GITHUB_REF##*/}:${GITHUB_RUN_NUMBER}
