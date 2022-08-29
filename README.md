@@ -1,3 +1,8 @@
+NOTE: Project has been obsoleted by:
+
+  https://github.com/lh32469/ncaaf-go
+  
+
 NCAAF graphical, weekly rankings application using Dropwizard, Swagger and Hystrix
 
 Viewable at:
